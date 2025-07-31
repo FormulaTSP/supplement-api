@@ -1,0 +1,421 @@
+{
+  "vitamin_d": {
+    "name": "Vitamin D",
+    "unit": "IU",
+    "categories": [
+      "immune",
+      "bone",
+      "mood"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 600,
+      "male_18_50": 600,
+      "female_50_plus": 800,
+      "male_50_plus": 800
+    },
+    "optimal_range": [
+      1000,
+      2000
+    ],
+    "upper_limit": 4000,
+    "contraindications": [
+      "hypercalcemia",
+      "sarcoidosis"
+    ],
+    "interactions": [
+      "calcium"
+    ],
+    "notes": "Essential for bone health and immune modulation. Needs increase in low sunlight regions."
+  },
+  "omega_3": {
+    "name": "Omega-3 (EPA/DHA)",
+    "unit": "mg",
+    "categories": [
+      "cardiovascular",
+      "inflammation",
+      "brain"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 250,
+      "male_18_50": 250,
+      "female_50_plus": 250,
+      "male_50_plus": 250
+    },
+    "optimal_range": [
+      1000,
+      2000
+    ],
+    "upper_limit": 3000,
+    "contraindications": [
+      "bleeding disorders"
+    ],
+    "interactions": [
+      "blood thinners"
+    ],
+    "notes": "Supports cardiovascular health and brain function. High doses may affect blood clotting."
+  },
+  "iron": {
+    "name": "Iron",
+    "unit": "mg",
+    "categories": [
+      "energy",
+      "hematologic"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 18,
+      "male_18_50": 8,
+      "female_50_plus": 8,
+      "male_50_plus": 8
+    },
+    "optimal_range": [
+      18,
+      30
+    ],
+    "upper_limit": 45,
+    "contraindications": [
+      "hemochromatosis"
+    ],
+    "interactions": [
+      "calcium",
+      "zinc"
+    ],
+    "notes": "Crucial for preventing anemia. Only supplement when deficiency is confirmed, especially in males."
+  },
+  "vitamin_b12": {
+    "name": "Vitamin B12",
+    "unit": "mcg",
+    "categories": [
+      "energy",
+      "neurologic"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 2.4,
+      "male_18_50": 2.4,
+      "female_50_plus": 2.4,
+      "male_50_plus": 2.4
+    },
+    "optimal_range": [
+      250,
+      500
+    ],
+    "upper_limit": 1000,
+    "contraindications": [],
+    "interactions": [],
+    "notes": "Supports energy and nervous system. Needs may increase with age and vegan diets."
+  },
+  "magnesium": {
+    "name": "Magnesium",
+    "unit": "mg",
+    "categories": [
+      "sleep",
+      "muscle",
+      "relaxation"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 310,
+      "male_18_50": 400,
+      "female_50_plus": 320,
+      "male_50_plus": 420
+    },
+    "optimal_range": [
+      350,
+      450
+    ],
+    "upper_limit": 500,
+    "contraindications": [
+      "kidney failure"
+    ],
+    "interactions": [
+      "calcium",
+      "zinc"
+    ],
+    "notes": "Magnesium supports sleep quality and muscle relaxation."
+  },
+  "zinc": {
+    "name": "Zinc",
+    "unit": "mg",
+    "categories": [
+      "immune",
+      "skin",
+      "wound healing"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 8,
+      "male_18_50": 11,
+      "female_50_plus": 8,
+      "male_50_plus": 11
+    },
+    "optimal_range": [
+      12,
+      20
+    ],
+    "upper_limit": 40,
+    "contraindications": [
+      "copper deficiency"
+    ],
+    "interactions": [
+      "copper",
+      "iron"
+    ],
+    "notes": "Supports immune function. Long-term use may lower copper levels."
+  },
+  "folate": {
+    "name": "Folate (B9)",
+    "unit": "mcg",
+    "categories": [
+      "pregnancy",
+      "mood",
+      "cell health"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 400,
+      "male_18_50": 400,
+      "female_50_plus": 400,
+      "male_50_plus": 400
+    },
+    "optimal_range": [
+      400,
+      800
+    ],
+    "upper_limit": 1000,
+    "contraindications": [],
+    "interactions": [],
+    "notes": "Important for DNA synthesis and prenatal health."
+  },
+  "vitamin_a": {
+    "name": "Vitamin A",
+    "unit": "mcg",
+    "categories": [
+      "vision",
+      "skin",
+      "immune"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 700,
+      "male_18_50": 900,
+      "female_50_plus": 700,
+      "male_50_plus": 900
+    },
+    "optimal_range": [
+      900,
+      1500
+    ],
+    "upper_limit": 3000,
+    "contraindications": [
+      "liver disease",
+      "pregnancy (in high doses)"
+    ],
+    "interactions": [],
+    "notes": "Fat-soluble vitamin, caution with overdose."
+  },
+  "vitamin_e": {
+    "name": "Vitamin E",
+    "unit": "mg",
+    "categories": [
+      "antioxidant",
+      "skin",
+      "circulatory"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 15,
+      "male_18_50": 15,
+      "female_50_plus": 15,
+      "male_50_plus": 15
+    },
+    "optimal_range": [
+      15,
+      200
+    ],
+    "upper_limit": 1000,
+    "contraindications": [
+      "bleeding disorders"
+    ],
+    "interactions": [
+      "blood thinners"
+    ],
+    "notes": "High doses may interfere with anticoagulants."
+  },
+  "vitamin_k": {
+    "name": "Vitamin K",
+    "unit": "mcg",
+    "categories": [
+      "bone",
+      "blood clotting"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 90,
+      "male_18_50": 120,
+      "female_50_plus": 90,
+      "male_50_plus": 120
+    },
+    "optimal_range": [
+      100,
+      200
+    ],
+    "upper_limit": 500,
+    "contraindications": [
+      "warfarin use"
+    ],
+    "interactions": [
+      "blood thinners"
+    ],
+    "notes": "Important for calcium metabolism and clotting."
+  },
+  "calcium": {
+    "name": "Calcium",
+    "unit": "mg",
+    "categories": [
+      "bone",
+      "muscle",
+      "nerve"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 1000,
+      "male_18_50": 1000,
+      "female_50_plus": 1200,
+      "male_50_plus": 1000
+    },
+    "optimal_range": [
+      1000,
+      1300
+    ],
+    "upper_limit": 2500,
+    "contraindications": [
+      "kidney stones"
+    ],
+    "interactions": [
+      "iron",
+      "zinc",
+      "magnesium"
+    ],
+    "notes": "Too much may reduce absorption of other minerals."
+  },
+  "selenium": {
+    "name": "Selenium",
+    "unit": "mcg",
+    "categories": [
+      "thyroid",
+      "antioxidant",
+      "immune"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 55,
+      "male_18_50": 55,
+      "female_50_plus": 55,
+      "male_50_plus": 55
+    },
+    "optimal_range": [
+      55,
+      100
+    ],
+    "upper_limit": 400,
+    "contraindications": [
+      "selenosis"
+    ],
+    "interactions": [],
+    "notes": "Supports thyroid function and immunity."
+  },
+  "iodine": {
+    "name": "Iodine",
+    "unit": "mcg",
+    "categories": [
+      "thyroid",
+      "metabolism"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 150,
+      "male_18_50": 150,
+      "female_50_plus": 150,
+      "male_50_plus": 150
+    },
+    "optimal_range": [
+      150,
+      250
+    ],
+    "upper_limit": 1100,
+    "contraindications": [
+      "hyperthyroidism"
+    ],
+    "interactions": [],
+    "notes": "Essential for thyroid hormone synthesis."
+  },
+  "choline": {
+    "name": "Choline",
+    "unit": "mg",
+    "categories": [
+      "brain",
+      "liver",
+      "methylation"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 425,
+      "male_18_50": 550,
+      "female_50_plus": 425,
+      "male_50_plus": 550
+    },
+    "optimal_range": [
+      500,
+      750
+    ],
+    "upper_limit": 3500,
+    "contraindications": [],
+    "interactions": [],
+    "notes": "Supports cognitive function and liver metabolism."
+  },
+  "melatonin": {
+    "name": "Melatonin",
+    "unit": "mg",
+    "categories": [
+      "sleep",
+      "circadian rhythm"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 0.5,
+      "male_18_50": 0.5,
+      "female_50_plus": 0.5,
+      "male_50_plus": 0.5
+    },
+    "optimal_range": [
+      1,
+      3
+    ],
+    "upper_limit": 10,
+    "contraindications": [
+      "autoimmune disorders"
+    ],
+    "interactions": [
+      "sedatives",
+      "antidepressants"
+    ],
+    "notes": "Hormone that regulates sleep-wake cycle."
+  },
+  "ashwagandha": {
+    "name": "Ashwagandha",
+    "unit": "mg",
+    "categories": [
+      "adaptogen",
+      "stress",
+      "energy"
+    ],
+    "rda_by_gender_age": {
+      "female_18_50": 300,
+      "male_18_50": 300,
+      "female_50_plus": 300,
+      "male_50_plus": 300
+    },
+    "optimal_range": [
+      500,
+      1000
+    ],
+    "upper_limit": 1200,
+    "contraindications": [
+      "hyperthyroidism",
+      "pregnancy"
+    ],
+    "interactions": [
+      "sedatives",
+      "thyroid meds"
+    ],
+    "notes": "Used for stress resilience and hormonal balance."
+  }
+}

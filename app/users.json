@@ -1,0 +1,4272 @@
+[
+  {
+    "user_id": "mock_user_0_0b08e6",
+    "age": 28,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [
+      "insulin resistance"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 29.542648637101287,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 43.93313648653252,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 303.0774599725894,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 34.716287854357226,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.1,
+      "hrv": 54.6,
+      "resting_hr": 58.2,
+      "activity_level": 2.2,
+      "temperature_variation": 0.25,
+      "spo2": 96.8,
+      "sunlight_exposure_minutes": 53
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "low",
+      "stress": "medium",
+      "symptoms": [
+        "low energy",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "bloating": "same",
+        "poor sleep": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_bdc4a8",
+    "age": 41,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog",
+      "dry skin"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 25.97392793779418,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 59.57024875280318,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.05035184362805,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 31.19913133388806,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.7,
+      "hrv": 42.2,
+      "resting_hr": 58.3,
+      "activity_level": 4.1,
+      "temperature_variation": 0.1,
+      "spo2": 97.0,
+      "sunlight_exposure_minutes": 47
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "bloating",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "mood swings": "same",
+        "low energy": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_e98b10",
+    "age": 26,
+    "gender": "female",
+    "symptoms": [
+      "low energy",
+      "brain fog",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "insulin resistance"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 26.456652330731508,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 46.20193446398608,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.6764234338099,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 21.433427762967803,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.1,
+      "hrv": 41.2,
+      "resting_hr": 60.3,
+      "activity_level": 4.3,
+      "temperature_variation": 0.11,
+      "spo2": 96.7,
+      "sunlight_exposure_minutes": 50
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "low energy",
+        "brain fog"
+      ],
+      "symptom_changes": {
+        "brain fog": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_f8bb8a",
+    "age": 26,
+    "gender": "female",
+    "symptoms": [
+      "dry skin",
+      "bloating",
+      "poor sleep"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 18.133288854679886,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 55.502288503128895,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 302.775891184527,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 22.61396252687218,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.2,
+      "hrv": 27.1,
+      "resting_hr": 56.2,
+      "activity_level": 5.2,
+      "temperature_variation": 0.34,
+      "spo2": 98.1,
+      "sunlight_exposure_minutes": 28
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "bloating",
+        "brain fog"
+      ],
+      "symptom_changes": {
+        "dry skin": "better",
+        "brain fog": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "user123",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "insomnia"
+    ],
+    "medical_conditions": [
+      "iron deficiency"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 25.0,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.5,
+      "hrv": 50,
+      "resting_hr": 60,
+      "activity_level": 3,
+      "temperature_variation": 0.1,
+      "spo2": 98,
+      "sunlight_exposure_minutes": 30
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": null,
+      "stress": null,
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {}
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_8e6d4a",
+    "age": 50,
+    "gender": "male",
+    "symptoms": [
+      "mood swings",
+      "low energy",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 14.562958175698064,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 44.295058996315674,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.38193192214766,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 26.30221759430505,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.9,
+      "hrv": 54.8,
+      "resting_hr": 66.5,
+      "activity_level": 2.7,
+      "temperature_variation": 0.2,
+      "spo2": 98.1,
+      "sunlight_exposure_minutes": 34
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "normal",
+      "stress": "low",
+      "symptoms": [
+        "low energy",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "low energy": "worse",
+        "low libido": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_90a138",
+    "age": 48,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "dry skin",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 12.4729554888979,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 52.38562556086107,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 303.48716490092454,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.06861151712715,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.4,
+      "hrv": 38.3,
+      "resting_hr": 57.0,
+      "activity_level": 4.4,
+      "temperature_variation": 0.19,
+      "spo2": 98.7,
+      "sunlight_exposure_minutes": 68
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "low energy",
+        "poor sleep"
+      ],
+      "symptom_changes": {
+        "low libido": "better",
+        "brain fog": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_00625d",
+    "age": 33,
+    "gender": "female",
+    "symptoms": [
+      "low energy",
+      "bloating",
+      "mood swings"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 17.075173674100398,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 42.617156468018585,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.8929215828197,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 28.80674169666165,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.5,
+      "hrv": 21.7,
+      "resting_hr": 63.6,
+      "activity_level": 6.3,
+      "temperature_variation": 0.25,
+      "spo2": 97.3,
+      "sunlight_exposure_minutes": 52
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "medium",
+      "symptoms": [
+        "brain fog",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "brain fog": "same",
+        "mood swings": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_88b4a5",
+    "age": 49,
+    "gender": "female",
+    "symptoms": [
+      "brain fog",
+      "mood swings",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "depression"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 18.309256258755628,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 52.02099116524544,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 307.6138469049283,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 37.92026034703544,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": 52.5,
+      "resting_hr": 67.8,
+      "activity_level": 6.8,
+      "temperature_variation": 0.21,
+      "spo2": 95.2,
+      "sunlight_exposure_minutes": 71
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "mood swings",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "same",
+        "poor sleep": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "70135c33-1e36-45f6-a6a8-f39caa01227d",
+    "age": 31,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "iron deficiency"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": 45.0,
+      "resting_hr": 68.0,
+      "activity_level": 0.5,
+      "temperature_variation": 0.3,
+      "spo2": 96.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "vegan": "true"
+    },
+    "medical_history": {},
+    "goals": [
+      "more energy",
+      "better focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "dffb2444-5362-449e-9106-b343a5e679c6",
+    "age": 31,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "iron deficiency"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": 45.0,
+      "resting_hr": 68.0,
+      "activity_level": 2.0,
+      "temperature_variation": 0.3,
+      "spo2": 96.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "vegan": "true"
+    },
+    "medical_history": {},
+    "goals": [
+      "more energy",
+      "better focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "dffb2444-5362-449e-9106-b343a5e679c6-testdup1",
+    "age": 31,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "iron deficiency"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": 45.0,
+      "resting_hr": 68.0,
+      "activity_level": 2.0,
+      "temperature_variation": 0.3,
+      "spo2": 96.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "vegan": "true"
+    },
+    "medical_history": {},
+    "goals": [
+      "more energy",
+      "better focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "dffb2444-5362-449e-9106-b343a5e679c6-testdup2",
+    "age": 31,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "iron deficiency"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": 45.0,
+      "resting_hr": 68.0,
+      "activity_level": 2.0,
+      "temperature_variation": 0.3,
+      "spo2": 96.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "vegan": "true"
+    },
+    "medical_history": {},
+    "goals": [
+      "more energy",
+      "better focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_187ca4",
+    "age": 29,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "fatigue",
+      "bloating"
+    ],
+    "medical_conditions": [
+      "depression"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 22.966354752619875,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 43.585098991726994,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 298.4500597759164,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 36.24297190290115,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.0,
+      "hrv": 48.2,
+      "resting_hr": 64.6,
+      "activity_level": 5.7,
+      "temperature_variation": 0.32,
+      "spo2": 96.7,
+      "sunlight_exposure_minutes": 90
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "poor sleep",
+        "low libido"
+      ],
+      "symptom_changes": {
+        "low libido": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_05bf4b",
+    "age": 46,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "poor sleep",
+      "mood swings"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 23.131606791113953,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 57.60442400915116,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 297.52297854236195,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.15781671863649,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.1,
+      "hrv": 26.4,
+      "resting_hr": 68.4,
+      "activity_level": 2.4,
+      "temperature_variation": 0.27,
+      "spo2": 98.4,
+      "sunlight_exposure_minutes": 14
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "normal",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "mood swings": "same",
+        "dry skin": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_404771",
+    "age": 21,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "fatigue",
+      "poor sleep"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 23.970468604233005,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 57.31969842590267,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 299.76861425961175,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 27.643211141588147,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.3,
+      "hrv": 32.7,
+      "resting_hr": 58.5,
+      "activity_level": 3.9,
+      "temperature_variation": 0.32,
+      "spo2": 97.7,
+      "sunlight_exposure_minutes": 10
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "low energy",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "same",
+        "bloating": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_6bdf6f",
+    "age": 32,
+    "gender": "male",
+    "symptoms": [
+      "brain fog",
+      "mood swings",
+      "fatigue"
+    ],
+    "medical_conditions": [
+      "depression"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 15.814746905371615,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 46.57196391399549,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.2650490231541,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 28.86413239864068,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.4,
+      "hrv": 21.6,
+      "resting_hr": 65.0,
+      "activity_level": 3.7,
+      "temperature_variation": 0.31,
+      "spo2": 96.5,
+      "sunlight_exposure_minutes": 65
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "bloating",
+        "brain fog"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "bloating": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_87d02e",
+    "age": 23,
+    "gender": "male",
+    "symptoms": [
+      "low energy",
+      "dry skin",
+      "low libido"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 11.935095564010393,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 49.799580206141925,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 306.5552044241522,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 28.526767838539342,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.2,
+      "hrv": 28.7,
+      "resting_hr": 68.6,
+      "activity_level": 3.6,
+      "temperature_variation": 0.43,
+      "spo2": 95.8,
+      "sunlight_exposure_minutes": 74
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "poor sleep",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "low libido": "better",
+        "low energy": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_6a405f",
+    "age": 45,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "dry skin",
+      "mood swings"
+    ],
+    "medical_conditions": [
+      "depression"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 24.144307484130792,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 57.34521749771673,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 308.97011433888514,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 26.870579600244344,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.9,
+      "hrv": 49.7,
+      "resting_hr": 56.3,
+      "activity_level": 2.2,
+      "temperature_variation": 0.27,
+      "spo2": 96.8,
+      "sunlight_exposure_minutes": 72
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "normal",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "low energy"
+      ],
+      "symptom_changes": {
+        "bloating": "worse",
+        "dry skin": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_276c36",
+    "age": 29,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 25.225249698878493,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 50.5101357752898,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 305.52546387270843,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 26.081796987785808,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.9,
+      "hrv": 21.5,
+      "resting_hr": 55.9,
+      "activity_level": 5.9,
+      "temperature_variation": 0.17,
+      "spo2": 96.1,
+      "sunlight_exposure_minutes": 75
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "poor sleep",
+        "low libido"
+      ],
+      "symptom_changes": {
+        "brain fog": "worse",
+        "fatigue": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_870375",
+    "age": 39,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 10.24656260796645,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 56.37649704933857,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 302.7803987206116,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 31.216971370157566,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.2,
+      "hrv": 22.1,
+      "resting_hr": 62.8,
+      "activity_level": 5.8,
+      "temperature_variation": 0.2,
+      "spo2": 96.9,
+      "sunlight_exposure_minutes": 14
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "low energy",
+        "poor sleep"
+      ],
+      "symptom_changes": {
+        "low libido": "same",
+        "poor sleep": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_0f2c5c",
+    "age": 36,
+    "gender": "male",
+    "symptoms": [
+      "poor sleep",
+      "low libido",
+      "fatigue"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 14.105391182707056,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 51.37747081460351,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.81148213942663,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 36.300312017552166,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.6,
+      "hrv": 56.5,
+      "resting_hr": 68.6,
+      "activity_level": 2.5,
+      "temperature_variation": 0.42,
+      "spo2": 97.5,
+      "sunlight_exposure_minutes": 73
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "mood swings",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "low energy": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_276dce",
+    "age": 43,
+    "gender": "female",
+    "symptoms": [
+      "bloating",
+      "brain fog",
+      "fatigue"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 26.715840327408962,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 43.191276928452105,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.2013769769142,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 27.54678074866353,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.6,
+      "hrv": 26.1,
+      "resting_hr": 72.9,
+      "activity_level": 3.1,
+      "temperature_variation": 0.28,
+      "spo2": 98.2,
+      "sunlight_exposure_minutes": 28
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "normal",
+      "stress": "low",
+      "symptoms": [
+        "low libido",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "mood swings": "same",
+        "dry skin": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_ada1f0",
+    "age": 49,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "mood swings",
+      "bloating"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 24.987396076361684,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 52.19274220785523,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 293.47052854647825,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 34.52501454482405,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.3,
+      "hrv": 32.8,
+      "resting_hr": 66.7,
+      "activity_level": 6.9,
+      "temperature_variation": 0.24,
+      "spo2": 98.8,
+      "sunlight_exposure_minutes": 49
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "dry skin",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "mood swings": "better",
+        "bloating": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_808aaa",
+    "age": 28,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "brain fog",
+      "fatigue"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 11.55468727116503,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 45.54977142689965,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 309.08211810040154,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.906984979087014,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.7,
+      "hrv": 39.3,
+      "resting_hr": 71.3,
+      "activity_level": 6.3,
+      "temperature_variation": 0.1,
+      "spo2": 97.8,
+      "sunlight_exposure_minutes": 72
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "dry skin",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "mood swings": "better",
+        "dry skin": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_34da0c",
+    "age": 36,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "bloating",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 14.107480047345364,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 40.264106517344885,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.762701035056,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 20.15212340523881,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.8,
+      "hrv": 52.9,
+      "resting_hr": 64.0,
+      "activity_level": 6.7,
+      "temperature_variation": 0.33,
+      "spo2": 97.9,
+      "sunlight_exposure_minutes": 15
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "normal",
+      "stress": "medium",
+      "symptoms": [
+        "fatigue",
+        "poor sleep"
+      ],
+      "symptom_changes": {
+        "bloating": "better",
+        "low libido": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_9a3499",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "low libido",
+      "brain fog",
+      "fatigue"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 20.88966563388574,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 53.78390930949793,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 297.2685727401507,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 24.491082640294884,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.9,
+      "hrv": 41.5,
+      "resting_hr": 66.5,
+      "activity_level": 3.6,
+      "temperature_variation": 0.39,
+      "spo2": 95.6,
+      "sunlight_exposure_minutes": 37
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "normal",
+      "stress": "low",
+      "symptoms": [
+        "bloating",
+        "low libido"
+      ],
+      "symptom_changes": {
+        "bloating": "better",
+        "brain fog": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_a974b4",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "low libido",
+      "low energy",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 29.354853225774058,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 47.16416573959094,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 302.5758202085801,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 25.29342102488028,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.2,
+      "hrv": 55.6,
+      "resting_hr": 57.2,
+      "activity_level": 6.0,
+      "temperature_variation": 0.16,
+      "spo2": 98.6,
+      "sunlight_exposure_minutes": 66
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "low energy",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "bloating": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_ef6d1f",
+    "age": 50,
+    "gender": "female",
+    "symptoms": [
+      "brain fog",
+      "bloating",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 24.768312112712362,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 55.540330155977216,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 308.40017111248073,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.353183796022705,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.1,
+      "hrv": 52.6,
+      "resting_hr": 61.8,
+      "activity_level": 6.0,
+      "temperature_variation": 0.5,
+      "spo2": 98.0,
+      "sunlight_exposure_minutes": 57
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "dry skin",
+        "brain fog"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "mood swings": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_ce80dd",
+    "age": 25,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "dry skin",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 19.209669006302903,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 56.15173666877132,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 303.4201636250536,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 26.479721661479466,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.2,
+      "hrv": 23.2,
+      "resting_hr": 61.6,
+      "activity_level": 4.3,
+      "temperature_variation": 0.42,
+      "spo2": 95.1,
+      "sunlight_exposure_minutes": 10
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "normal",
+      "stress": "medium",
+      "symptoms": [
+        "fatigue",
+        "poor sleep"
+      ],
+      "symptom_changes": {
+        "bloating": "worse",
+        "poor sleep": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_0a1fef",
+    "age": 36,
+    "gender": "male",
+    "symptoms": [
+      "poor sleep",
+      "low energy",
+      "bloating"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 27.94982799815301,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 51.35278611023556,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 290.8533429361623,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 24.844148983216492,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.9,
+      "hrv": 33.5,
+      "resting_hr": 74.0,
+      "activity_level": 6.3,
+      "temperature_variation": 0.36,
+      "spo2": 96.9,
+      "sunlight_exposure_minutes": 46
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "normal",
+      "stress": "low",
+      "symptoms": [
+        "brain fog",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "low energy": "better",
+        "mood swings": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_c1cfe6",
+    "age": 37,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "dry skin",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 25.24634734424783,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 40.74134335610222,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 290.327060167285,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 27.231839040560057,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.5,
+      "hrv": 25.4,
+      "resting_hr": 55.8,
+      "activity_level": 2.6,
+      "temperature_variation": 0.16,
+      "spo2": 97.1,
+      "sunlight_exposure_minutes": 33
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "dry skin",
+        "mood swings"
+      ],
+      "symptom_changes": {
+        "low energy": "better",
+        "poor sleep": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_14f8c0",
+    "age": 41,
+    "gender": "female",
+    "symptoms": [
+      "low libido",
+      "dry skin",
+      "mood swings"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 13.918722099747674,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 50.1455764858003,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 305.8016745483751,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 38.81364866387155,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.9,
+      "hrv": 50.3,
+      "resting_hr": 70.7,
+      "activity_level": 2.4,
+      "temperature_variation": 0.46,
+      "spo2": 98.9,
+      "sunlight_exposure_minutes": 19
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "brain fog",
+        "low energy"
+      ],
+      "symptom_changes": {
+        "mood swings": "same",
+        "fatigue": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_a44243",
+    "age": 43,
+    "gender": "female",
+    "symptoms": [
+      "mood swings",
+      "brain fog",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "insulin resistance"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 26.317420176109852,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 50.03126141113295,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.35650214825114,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 22.910034459549884,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.0,
+      "hrv": 24.2,
+      "resting_hr": 58.3,
+      "activity_level": 4.3,
+      "temperature_variation": 0.18,
+      "spo2": 95.9,
+      "sunlight_exposure_minutes": 76
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "high",
+      "stress": "low",
+      "symptoms": [
+        "low libido",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "poor sleep": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_4de875",
+    "age": 36,
+    "gender": "female",
+    "symptoms": [
+      "dry skin",
+      "low libido",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 26.465398518372552,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 50.164271153715966,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.4516100365827,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 28.08792513092304,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.0,
+      "hrv": 48.0,
+      "resting_hr": 73.1,
+      "activity_level": 4.3,
+      "temperature_variation": 0.41,
+      "spo2": 97.9,
+      "sunlight_exposure_minutes": 67
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "high",
+      "stress": "medium",
+      "symptoms": [
+        "low energy",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "dry skin": "better",
+        "mood swings": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_c5a480",
+    "age": 31,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "dry skin",
+      "poor sleep"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 17.125498157296644,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 48.77046438134745,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 294.3343840681936,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 36.41524199705206,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.8,
+      "hrv": 41.3,
+      "resting_hr": 65.6,
+      "activity_level": 5.3,
+      "temperature_variation": 0.2,
+      "spo2": 97.9,
+      "sunlight_exposure_minutes": 54
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "bloating",
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "poor sleep": "better",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_29280a",
+    "age": 23,
+    "gender": "male",
+    "symptoms": [
+      "low libido",
+      "dry skin",
+      "bloating"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 16.752707427025772,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 41.88185194411206,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 299.0851178456442,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 32.88690294499098,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.6,
+      "hrv": 29.0,
+      "resting_hr": 66.7,
+      "activity_level": 2.7,
+      "temperature_variation": 0.5,
+      "spo2": 96.8,
+      "sunlight_exposure_minutes": 21
+    },
+    "feedback": {
+      "mood": "better",
+      "energy": "normal",
+      "stress": "medium",
+      "symptoms": [
+        "low libido",
+        "low energy"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "poor sleep": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_057572",
+    "age": 49,
+    "gender": "male",
+    "symptoms": [
+      "brain fog",
+      "fatigue",
+      "bloating"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 25.292522602560705,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 41.653615129811655,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 303.3622368480353,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 32.70376305390488,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.6,
+      "hrv": 35.0,
+      "resting_hr": 62.0,
+      "activity_level": 2.4,
+      "temperature_variation": 0.13,
+      "spo2": 98.3,
+      "sunlight_exposure_minutes": 44
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "high",
+      "stress": "high",
+      "symptoms": [
+        "brain fog",
+        "poor sleep"
+      ],
+      "symptom_changes": {
+        "low libido": "better",
+        "dry skin": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_4264ff",
+    "age": 29,
+    "gender": "male",
+    "symptoms": [
+      "low energy",
+      "poor sleep",
+      "mood swings"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 12.87421329683463,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 55.61859510203441,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 308.1729677586028,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 22.68800361000851,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.9,
+      "hrv": 36.4,
+      "resting_hr": 64.9,
+      "activity_level": 5.3,
+      "temperature_variation": 0.31,
+      "spo2": 97.9,
+      "sunlight_exposure_minutes": 49
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "high",
+      "stress": "medium",
+      "symptoms": [
+        "fatigue",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "low energy": "better",
+        "poor sleep": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_c3cf7f",
+    "age": 49,
+    "gender": "male",
+    "symptoms": [
+      "brain fog",
+      "fatigue",
+      "dry skin"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 17.23825214088778,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 47.81638839170924,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 307.80988625973237,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 36.57558234858389,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.1,
+      "hrv": 37.6,
+      "resting_hr": 66.9,
+      "activity_level": 6.8,
+      "temperature_variation": 0.39,
+      "spo2": 97.5,
+      "sunlight_exposure_minutes": 52
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "high",
+      "stress": "medium",
+      "symptoms": [
+        "bloating",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "mood swings": "worse",
+        "low energy": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_ac2050",
+    "age": 32,
+    "gender": "female",
+    "symptoms": [
+      "low energy",
+      "mood swings",
+      "fatigue"
+    ],
+    "medical_conditions": [
+      "pcos"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 24.666021653899378,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 42.362765772736964,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.4219112954744,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 28.10657540730623,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.7,
+      "hrv": 38.0,
+      "resting_hr": 67.4,
+      "activity_level": 3.5,
+      "temperature_variation": 0.32,
+      "spo2": 95.9,
+      "sunlight_exposure_minutes": 11
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "low",
+      "symptoms": [
+        "low energy",
+        "brain fog"
+      ],
+      "symptom_changes": {
+        "bloating": "worse",
+        "low energy": "better"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "18cbeaa0-7fcf-48b5-b12e-4791c0de51fd",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "6c60589b-7057-4dca-8980-76b90f1e58f9",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "afead523-0803-4b97-9a3a-2024f5af75e9",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "ea09e466-f7b7-4229-96fd-cf50d379c6ac",
+    "age": 35,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [],
+    "wearable_data": null,
+    "feedback": {
+      "mood": null,
+      "energy": null,
+      "stress": null,
+      "symptoms": [],
+      "symptom_changes": {}
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve cognition"
+    ],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "fd7628ea-8106-444f-a17b-92d1ab60b74d",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "headache"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.0,
+      "hrv": 45.0,
+      "resting_hr": 60.0,
+      "activity_level": 0.5,
+      "temperature_variation": 0.2,
+      "spo2": 98.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve energy"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "7a7a5efa-49fb-4971-a3b3-6e9fb2d97041",
+    "age": 35,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [],
+    "wearable_data": null,
+    "feedback": {
+      "mood": null,
+      "energy": null,
+      "stress": null,
+      "symptoms": [],
+      "symptom_changes": {}
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve cognition"
+    ],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "2efd5be1-5621-48b6-81b8-fc4e83f5d935",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "headache"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.0,
+      "hrv": 45.0,
+      "resting_hr": 60.0,
+      "activity_level": 0.5,
+      "temperature_variation": 0.2,
+      "spo2": 98.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve energy"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "995027a4-d069-4168-9cea-4f0f08646dfe",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "0a92b99a-a937-4048-a841-525afb1e37d8",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "c7f62336-2b38-4791-b713-b8a61b0b2365",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "14e577c0-3c89-4bd2-a6e2-107cb2962367",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "3ed0a806-d2cb-4e8e-8e70-9e588b0464fc",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "8cd0f442-90be-4e7c-9663-285d1202584b",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "fc044092-7dc4-4f04-bdf3-8f26da617c93",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "3842c6ad-5f7c-4833-87ee-68bc76d907c9",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "5d3f08c9-9428-46ae-ae00-8b827208a092",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "52138cae-bc91-4785-bd5c-f6a61340ec12",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "b2d0a429-36d5-4322-aa64-3c5e6b1a001b",
+    "age": 35,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [],
+    "wearable_data": null,
+    "feedback": {
+      "mood": null,
+      "energy": null,
+      "stress": null,
+      "symptoms": [],
+      "symptom_changes": {}
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve cognition"
+    ],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "d08bad2a-a947-4a60-991b-f22a5e962bae",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "headache"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.0,
+      "hrv": 45.0,
+      "resting_hr": 60.0,
+      "activity_level": 0.5,
+      "temperature_variation": 0.2,
+      "spo2": 98.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve energy"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "48696f42-b75c-4bf3-8263-6e43d07a564a",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": null,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "okay",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {
+      "smoking": "false",
+      "exercise_level": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "better sleep",
+      "more energy"
+    ],
+    "medications": [
+      "med1"
+    ],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "df6d470f-50a4-4190-b127-ddd0afbb72bc",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "low energy",
+      "dry skin"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 5.0,
+      "hrv": 30.0,
+      "resting_hr": null,
+      "activity_level": 0.0,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse",
+        "dry skin": "same"
+      }
+    },
+    "lifestyle": {
+      "smoker": "no",
+      "exercise_frequency": "moderate"
+    },
+    "medical_history": {
+      "anemia": true
+    },
+    "goals": [
+      "increase energy",
+      "improve skin health"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "b8bb363a-b9c0-4078-b843-45091b2d4d1f",
+    "age": 35,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [],
+    "wearable_data": null,
+    "feedback": {
+      "mood": null,
+      "energy": null,
+      "stress": null,
+      "symptoms": [],
+      "symptom_changes": {}
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve cognition"
+    ],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "94880144-0876-4e0d-bbe0-6499ccf5e331",
+    "age": 30,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "headache"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "Vitamin D",
+        "value": 15.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "Iron",
+        "value": 40.0,
+        "unit": "\u00b5g/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.0,
+      "hrv": 45.0,
+      "resting_hr": 60.0,
+      "activity_level": 0.5,
+      "temperature_variation": 0.2,
+      "spo2": 98.0,
+      "sunlight_exposure_minutes": 20.0
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "low",
+      "stress": "moderate",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {
+        "fatigue": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [
+      "improve energy"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_0_a67d6d",
+    "age": 46,
+    "gender": "male",
+    "symptoms": [
+      "bloating",
+      "brain fog",
+      "low energy"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 27.21,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 40.7,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.74,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 30.01,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.5,
+      "hrv": 31.2,
+      "resting_hr": 60.8,
+      "activity_level": 3.4,
+      "temperature_variation": 0.37,
+      "spo2": 96.4,
+      "sunlight_exposure_minutes": 60
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "mood swings",
+        "bloating"
+      ],
+      "symptom_changes": {
+        "mood swings": "same",
+        "low energy": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_1_2a4332",
+    "age": 48,
+    "gender": "male",
+    "symptoms": [
+      "fatigue",
+      "brain fog",
+      "low libido"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 19.33,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 46.32,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 300.59,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.42,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.5,
+      "hrv": 24.0,
+      "resting_hr": 66.7,
+      "activity_level": 4.0,
+      "temperature_variation": 0.27,
+      "spo2": 96.2,
+      "sunlight_exposure_minutes": 86
+    },
+    "feedback": {
+      "mood": "same",
+      "energy": "normal",
+      "stress": "low",
+      "symptoms": [
+        "fatigue",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "mood swings": "worse",
+        "low libido": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 1,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_2_00a88a",
+    "age": 23,
+    "gender": "female",
+    "symptoms": [
+      "low energy",
+      "low libido",
+      "brain fog"
+    ],
+    "medical_conditions": [
+      "hypothyroidism"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 12.15,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 41.52,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 296.43,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 35.5,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 8.3,
+      "hrv": 23.9,
+      "resting_hr": 58.9,
+      "activity_level": 2.9,
+      "temperature_variation": 0.14,
+      "spo2": 97.5,
+      "sunlight_exposure_minutes": 33
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "low",
+      "stress": "medium",
+      "symptoms": [
+        "mood swings",
+        "low libido"
+      ],
+      "symptom_changes": {
+        "dry skin": "better",
+        "poor sleep": "same"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "mock_user_3_9af97c",
+    "age": 40,
+    "gender": "female",
+    "symptoms": [
+      "low libido",
+      "dry skin",
+      "low energy"
+    ],
+    "medical_conditions": [
+      "anemia"
+    ],
+    "blood_tests": [
+      {
+        "marker": "vitamin d",
+        "value": 28.51,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "iron",
+        "value": 41.43,
+        "unit": "\u00b5g/dL"
+      },
+      {
+        "marker": "b12",
+        "value": 301.71,
+        "unit": "pg/mL"
+      },
+      {
+        "marker": "ferritin",
+        "value": 31.69,
+        "unit": "ng/mL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 7.6,
+      "hrv": 33.5,
+      "resting_hr": 71.2,
+      "activity_level": 6.7,
+      "temperature_variation": 0.24,
+      "spo2": 96.8,
+      "sunlight_exposure_minutes": 58
+    },
+    "feedback": {
+      "mood": "worse",
+      "energy": "normal",
+      "stress": "high",
+      "symptoms": [
+        "brain fog",
+        "dry skin"
+      ],
+      "symptom_changes": {
+        "fatigue": "better",
+        "poor sleep": "worse"
+      }
+    },
+    "lifestyle": {},
+    "medical_history": {},
+    "goals": [],
+    "medications": [],
+    "cluster_id": 2,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "418c0691-8772-48ed-aff6-73ae42187edb",
+    "age": 35,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin_d",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "magnesium",
+        "value": 1.8,
+        "unit": "mg/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": 65.0,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {}
+    },
+    "lifestyle": {
+      "exercise_frequency": "moderate",
+      "diet": "vegetarian"
+    },
+    "medical_history": {
+      "thyroid_issues": "no",
+      "diabetes": "no"
+    },
+    "goals": [
+      "increase_energy",
+      "improve_focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  },
+  {
+    "user_id": "9ef04c96-6f6c-4637-b234-819bfb0d1f88",
+    "age": 35,
+    "gender": "female",
+    "symptoms": [
+      "fatigue",
+      "brain fog"
+    ],
+    "medical_conditions": [],
+    "blood_tests": [
+      {
+        "marker": "vitamin_d",
+        "value": 18.0,
+        "unit": "ng/mL"
+      },
+      {
+        "marker": "magnesium",
+        "value": 1.8,
+        "unit": "mg/dL"
+      }
+    ],
+    "wearable_data": {
+      "sleep_hours": 6.5,
+      "hrv": null,
+      "resting_hr": 65.0,
+      "activity_level": 0.5,
+      "temperature_variation": null,
+      "spo2": null,
+      "sunlight_exposure_minutes": null
+    },
+    "feedback": {
+      "mood": "low",
+      "energy": "low",
+      "stress": "high",
+      "symptoms": [
+        "fatigue"
+      ],
+      "symptom_changes": {}
+    },
+    "lifestyle": {
+      "exercise_frequency": "moderate",
+      "diet": "vegetarian"
+    },
+    "medical_history": {
+      "thyroid_issues": "no",
+      "diabetes": "no"
+    },
+    "goals": [
+      "increase_energy",
+      "improve_focus"
+    ],
+    "medications": [],
+    "cluster_id": 0,
+    "weight_kg": null,
+    "height_cm": null,
+    "diet_type": null,
+    "location": null
+  }
+]

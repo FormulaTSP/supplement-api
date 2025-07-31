@@ -1,0 +1,8 @@
+{
+  "ciprofloxacin": ["iron", "zinc"],
+  "levothyroxine": ["iron", "calcium", "magnesium"],
+  "warfarin": ["vitamin k", "vitamin e"],
+  "statins": ["coq10"],
+  "metformin": ["vitamin b12"],
+  "diuretics": ["potassium", "magnesium"]
+}

@@ -1,0 +1,778 @@
+[
+  {
+    "cluster_id": 0,
+    "timestamp": "2025-07-25T10:24:22.062565",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 500,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 425,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 0,
+    "timestamp": "2025-07-25T10:25:01.224741",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 600,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 425,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 1,
+    "timestamp": "2025-07-25T15:25:09.167876",
+    "added": [],
+    "removed": [
+      {
+        "name": "Choline",
+        "dosage": 550,
+        "unit": "mg"
+      }
+    ],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 375.0,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 450,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 3,
+    "timestamp": "2025-07-25T15:25:09.167896",
+    "added": [
+      {
+        "name": "Magnesium",
+        "dosage": 375.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Iron",
+        "dosage": 30,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.75,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 4,
+    "timestamp": "2025-07-25T15:25:09.167904",
+    "added": [
+      {
+        "name": "Magnesium",
+        "dosage": 375.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Iron",
+        "dosage": 13.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 550,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 0,
+    "timestamp": "2025-07-25T15:39:39.009715",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 425,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 462.5,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 1,
+    "timestamp": "2025-07-25T15:39:39.009734",
+    "added": [],
+    "removed": [
+      {
+        "name": "Iron",
+        "dosage": 30,
+        "unit": "mg"
+      }
+    ],
+    "modified": [
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 2,
+    "timestamp": "2025-07-25T15:39:39.009744",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 3,
+    "timestamp": "2025-07-25T15:39:39.009749",
+    "added": [
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 525.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 375.0,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 4,
+    "timestamp": "2025-07-25T15:39:39.009753",
+    "added": [
+      {
+        "name": "Iron",
+        "dosage": 30,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 425,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 310,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 0,
+    "timestamp": "2025-07-25T16:16:44.257972",
+    "added": [],
+    "removed": [
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Zinc",
+        "dosage": 8,
+        "unit": "mg"
+      }
+    ],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 330.0,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 375.0,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 462.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 550,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 1,
+    "timestamp": "2025-07-25T16:16:44.257991",
+    "added": [
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Zinc",
+        "dosage": 8,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 375.0,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 330.0,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 550,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 462.5,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 2,
+    "timestamp": "2025-07-25T16:16:44.258009",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 3,
+    "timestamp": "2025-07-25T16:16:44.258020",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 375.0,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 450,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 525.0,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 550,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 4,
+    "timestamp": "2025-07-25T16:16:44.258032",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 310,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 450,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Iron",
+        "old": {
+          "name": "Iron",
+          "dosage": 30,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Iron",
+          "dosage": 18.0,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 1,
+    "timestamp": "2025-07-28T11:21:22.075209",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 425,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 462.5,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 2,
+    "timestamp": "2025-07-28T11:21:22.075230",
+    "added": [],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Melatonin",
+        "old": {
+          "name": "Melatonin",
+          "dosage": 0.75,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Melatonin",
+          "dosage": 0.5,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 3,
+    "timestamp": "2025-07-28T11:21:22.075239",
+    "added": [
+      {
+        "name": "Choline",
+        "dosage": 550,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 450,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.75,
+        "unit": "mg"
+      },
+      {
+        "name": "Vitamin D",
+        "dosage": 600,
+        "unit": "IU"
+      },
+      {
+        "name": "Vitamin B12",
+        "dosage": 500,
+        "unit": "mcg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 4,
+    "timestamp": "2025-07-28T11:21:22.075245",
+    "added": [
+      {
+        "name": "Choline",
+        "dosage": 425,
+        "unit": "mg"
+      },
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 450,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.75,
+        "unit": "mg"
+      },
+      {
+        "name": "Vitamin D",
+        "dosage": 800.0,
+        "unit": "IU"
+      },
+      {
+        "name": "Vitamin B12",
+        "dosage": 500,
+        "unit": "mcg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 0,
+    "timestamp": "2025-07-28T14:32:43.618891+00:00",
+    "added": [
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      }
+    ],
+    "removed": [
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      }
+    ],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 310,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 375.0,
+          "unit": "mg"
+        }
+      },
+      {
+        "name": "Choline",
+        "old": {
+          "name": "Choline",
+          "dosage": 462.5,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Choline",
+          "dosage": 550,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 1,
+    "timestamp": "2025-07-28T14:32:43.618910+00:00",
+    "added": [
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 425,
+        "unit": "mg"
+      }
+    ],
+    "removed": [],
+    "modified": [
+      {
+        "name": "Magnesium",
+        "old": {
+          "name": "Magnesium",
+          "dosage": 400,
+          "unit": "mg"
+        },
+        "new": {
+          "name": "Magnesium",
+          "dosage": 330.0,
+          "unit": "mg"
+        }
+      }
+    ]
+  },
+  {
+    "cluster_id": 2,
+    "timestamp": "2025-07-28T14:32:43.618916+00:00",
+    "added": [
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 330.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.75,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 462.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Vitamin D",
+        "dosage": 600,
+        "unit": "IU"
+      },
+      {
+        "name": "Vitamin B12",
+        "dosage": 500,
+        "unit": "mcg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 3,
+    "timestamp": "2025-07-28T14:32:43.618920+00:00",
+    "added": [
+      {
+        "name": "Magnesium",
+        "dosage": 450,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.75,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 550,
+        "unit": "mg"
+      },
+      {
+        "name": "Vitamin D",
+        "dosage": 600,
+        "unit": "IU"
+      },
+      {
+        "name": "Vitamin B12",
+        "dosage": 500,
+        "unit": "mcg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  },
+  {
+    "cluster_id": 4,
+    "timestamp": "2025-07-28T14:32:43.618925+00:00",
+    "added": [
+      {
+        "name": "Iron",
+        "dosage": 18.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Zinc",
+        "dosage": 8,
+        "unit": "mg"
+      },
+      {
+        "name": "Magnesium",
+        "dosage": 330.0,
+        "unit": "mg"
+      },
+      {
+        "name": "Melatonin",
+        "dosage": 0.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Choline",
+        "dosage": 462.5,
+        "unit": "mg"
+      },
+      {
+        "name": "Vitamin D",
+        "dosage": 800.0,
+        "unit": "IU"
+      },
+      {
+        "name": "Vitamin B12",
+        "dosage": 500,
+        "unit": "mcg"
+      }
+    ],
+    "removed": [],
+    "modified": []
+  }
+]

@@ -1,0 +1,323 @@
+{
+  "0": [
+    {
+      "name": "Vitamin D",
+      "dosage": 800.0,
+      "unit": "IU",
+      "reason": "Cluster baseline need score: 0.457",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [
+        "hypercalcemia",
+        "sarcoidosis"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Melatonin",
+      "dosage": 0.5,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.038",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [
+        "autoimmune disorders"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Choline",
+      "dosage": 425,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.209",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Iron",
+      "dosage": 30,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.752",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [
+        "hemochromatosis"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Vitamin B12",
+      "dosage": 500,
+      "unit": "mcg",
+      "reason": "Cluster baseline need score: 0.993",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Magnesium",
+      "dosage": 330.0,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.348",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [
+        "kidney failure"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    },
+    {
+      "name": "Zinc",
+      "dosage": 8,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.008",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "low energy"
+      ],
+      "contraindications": [
+        "copper deficiency"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, low energy."
+    }
+  ],
+  "1": [
+    {
+      "name": "Vitamin D",
+      "dosage": 800.0,
+      "unit": "IU",
+      "reason": "Cluster baseline need score: 0.349",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "dry skin"
+      ],
+      "contraindications": [
+        "hypercalcemia",
+        "sarcoidosis"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, dry skin."
+    },
+    {
+      "name": "Melatonin",
+      "dosage": 0.5,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.149",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "dry skin"
+      ],
+      "contraindications": [
+        "autoimmune disorders"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, dry skin."
+    },
+    {
+      "name": "Choline",
+      "dosage": 550,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.286",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "dry skin"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, dry skin."
+    },
+    {
+      "name": "Vitamin B12",
+      "dosage": 500,
+      "unit": "mcg",
+      "reason": "Cluster baseline need score: 0.949",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "dry skin"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, dry skin."
+    },
+    {
+      "name": "Magnesium",
+      "dosage": 375.0,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.403",
+      "triggered_by": [
+        "fatigue",
+        "brain fog",
+        "dry skin"
+      ],
+      "contraindications": [
+        "kidney failure"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: fatigue, brain fog, dry skin."
+    }
+  ],
+  "2": [
+    {
+      "name": "Vitamin D",
+      "dosage": 600,
+      "unit": "IU",
+      "reason": "Cluster baseline need score: 0.164",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [
+        "hypercalcemia",
+        "sarcoidosis"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    },
+    {
+      "name": "Melatonin",
+      "dosage": 0.75,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.414",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [
+        "autoimmune disorders"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    },
+    {
+      "name": "Choline",
+      "dosage": 462.5,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.349",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    },
+    {
+      "name": "Iron",
+      "dosage": 18.0,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.652",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [
+        "hemochromatosis"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    },
+    {
+      "name": "Vitamin B12",
+      "dosage": 500,
+      "unit": "mcg",
+      "reason": "Cluster baseline need score: 0.917",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    },
+    {
+      "name": "Magnesium",
+      "dosage": 330.0,
+      "unit": "mg",
+      "reason": "Cluster baseline need score: 0.582",
+      "triggered_by": [
+        "poor sleep",
+        "low energy",
+        "dry skin"
+      ],
+      "contraindications": [
+        "kidney failure"
+      ],
+      "inputs_triggered": [],
+      "source": "cluster",
+      "validation_flags": [],
+      "explanation": "Recommended due to symptoms: poor sleep, low energy, dry skin."
+    }
+  ]
+}
