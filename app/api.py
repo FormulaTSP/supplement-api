@@ -1,5 +1,6 @@
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Union
 from app.data_model import (
@@ -18,6 +19,15 @@ import uuid
 import logging
 
 app = FastAPI()
+
+# ✅ Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Replace "*" with "https://your-frontend-url.com" for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Setup logger
 logger = logging.getLogger("uvicorn.error")
