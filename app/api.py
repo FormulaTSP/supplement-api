@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Union
 from dotenv import load_dotenv
 
-load_dotenv() # ✅ Load environment variables from .env
+load_dotenv()  # ✅ Load environment variables from .env
 
 from app.data_model import (
     UserProfile,
@@ -32,6 +32,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Root endpoint
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Supplement API"}
 
 # Setup logger
 logger = logging.getLogger("uvicorn.error")
