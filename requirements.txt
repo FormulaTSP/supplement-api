@@ -8,3 +8,4 @@ watchfiles
 python-dotenv
 google-cloud-vision
 openai
+python-multipart
