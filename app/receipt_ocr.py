@@ -1,11 +1,24 @@
 # app/receipt_ocr.py
 
 from fastapi import APIRouter, UploadFile, File
+import os
+import json
 from google.cloud import vision
+from google.oauth2 import service_account
 from app.nutrition_utils import categorize_items_with_llm, estimate_nutrients
 
 router = APIRouter()
-client = vision.ImageAnnotatorClient()
+
+# Load Google credentials from environment variable (JSON string)
+creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if creds_json:
+    creds_info = json.loads(creds_json)
+    credentials = service_account.Credentials.from_service_account_info(creds_info)
+else:
+    credentials = None  # or you can raise an error here if you want to enforce presence
+
+# Create Vision client with credentials
+client = vision.ImageAnnotatorClient(credentials=credentials)
 
 @router.post("/process-receipt")
 async def process_receipt(file: UploadFile = File(...)):
