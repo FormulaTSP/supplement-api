@@ -10,3 +10,4 @@ google-cloud-vision
 openai
 python-multipart
 supabase
+pdf2image
