@@ -33,8 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root endpoint
+# Root endpoint supporting GET and HEAD to avoid 405 errors on HEAD requests
 @app.get("/")
+@app.head("/")
 def root():
     return {"message": "Welcome to the Supplement API"}
 
