@@ -9,8 +9,6 @@ from app.nutrition_utils import categorize_items_with_llm, estimate_nutrients
 
 router = APIRouter()
 
-poppler_path = r"C:\Users\Fredr\Desktop\Backup\Other\School\Stockholm School of Economics\poppler-24.08.0\Library\bin"
-
 # Load Google credentials from environment variable (JSON string)
 creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 if creds_json:
@@ -28,7 +26,8 @@ async def process_receipt(file: UploadFile = File(...)):
     file_ext = file.filename.split(".")[-1].lower()
 
     if file_ext == "pdf":
-        images = convert_from_bytes(content, poppler_path=poppler_path)
+        # No poppler_path specified; expects poppler installed in system PATH
+        images = convert_from_bytes(content)
         # Convert first page to PNG bytes
         img_byte_arr = io.BytesIO()
         images[0].save(img_byte_arr, format='PNG')
