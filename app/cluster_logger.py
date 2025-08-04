@@ -1,19 +1,23 @@
-from pathlib import Path
 # cluster_logger.py
 
+from pathlib import Path
 import json
 import os
 from datetime import datetime, timezone
 from typing import List, Dict
 from app.data_model import UserProfile, SupplementRecommendation
 
-CLUSTER_HISTORY_FILE = "cluster_history.json"
-PROTOCOL_CHANGE_LOG_FILE = "protocol_change_log.json"
+# Base directory where this script resides
+BASE_DIR = Path(__file__).parent
+
+# Relative paths resolved from this script's location
+CLUSTER_HISTORY_FILE = BASE_DIR / "cluster_history.json"
+PROTOCOL_CHANGE_LOG_FILE = BASE_DIR / "protocol_change_log.json"
 
 def log_cluster_assignments(users: List[UserProfile]) -> None:
     """Append timestamped user cluster assignments to log."""
     history = []
-    if os.path.exists(CLUSTER_HISTORY_FILE):
+    if CLUSTER_HISTORY_FILE.exists():
         with open(CLUSTER_HISTORY_FILE, "r") as f:
             history = json.load(f)
 
@@ -64,7 +68,7 @@ def log_protocol_differences(old: Dict[int, List[SupplementRecommendation]],
 
     if changes:
         log = []
-        if os.path.exists(PROTOCOL_CHANGE_LOG_FILE):
+        if PROTOCOL_CHANGE_LOG_FILE.exists():
             with open(PROTOCOL_CHANGE_LOG_FILE, "r") as f:
                 log = json.load(f)
 

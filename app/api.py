@@ -3,6 +3,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Union
+from dotenv import load_dotenv
+
+load_dotenv() # ✅ Load environment variables from .env
+
 from app.data_model import (
     UserProfile,
     SupplementRecommendation,
@@ -126,3 +130,9 @@ def recommend(user_input: UserInput):
     except Exception as e:
         logger.error(f"Error in /recommend endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error. Please check your input and try again.")
+    
+from app.receipt_ocr import router as receipt_router
+app.include_router(receipt_router)
+
+from app.grocery_router import router as grocery_router
+app.include_router(grocery_router)
