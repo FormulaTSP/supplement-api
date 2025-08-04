@@ -7,3 +7,4 @@ pandas
 watchfiles
 python-dotenv
 google-cloud-vision
+openai
