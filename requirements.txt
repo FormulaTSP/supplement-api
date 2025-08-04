@@ -6,3 +6,4 @@ numpy
 pandas
 watchfiles
 python-dotenv
+google-cloud-vision
