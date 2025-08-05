@@ -1,11 +1,16 @@
 import os
-from openai import OpenAI
 import json
+from openai import OpenAI
 
 client = OpenAI()
 
 def parse_bloodtest_text(raw_text: str):
-    # Try to see if input is JSON (Excel case)
+    """
+    Extract blood test results from either raw text or JSON-like string input.
+    Returns a list of dictionaries with keys: marker, value, unit.
+    """
+
+    # Try to detect if input is JSON (from Excel or structured data)
     try:
         data = json.loads(raw_text)
         is_json = True
@@ -13,42 +18,45 @@ def parse_bloodtest_text(raw_text: str):
         is_json = False
 
     if is_json:
-        prompt = f"""
-        You are a helpful assistant that extracts blood test results from JSON data representing tables.
-        The JSON contains lists of records with various keys. Extract and return a JSON array of objects,
-        each with keys: marker (string), value (float), unit (string).
-        Example output:
-        [
-          {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
-          {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
-        ]
+        pretty_json = json.dumps(data, indent=2)
+        prompt = f"""You are a helpful assistant that extracts blood test results from JSON data representing tables.
 
-        Input JSON data:
-        ```json
-        {json.dumps(data, indent=2)}
-        ```
-        """
+The JSON contains lists of records with various keys. Extract and return a JSON array of objects, each with:
+- marker (string)
+- value (float)
+- unit (string)
+
+### Example output:
+[
+  {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
+  {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
+]
+
+### Input JSON data:
+```json
+{pretty_json}
+```"""
     else:
-        prompt = f"""
-        You are a helpful assistant that extracts blood test results from raw text.
-        The input text contains markers, values, and units mixed with other data.
-        Extract and return a JSON array of objects, each with keys:
-        - marker (string)
-        - value (float)
-        - unit (string)
+        prompt = f"""You are a helpful assistant that extracts blood test results from raw text.
 
-        Example output:
-        [
-          {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
-          {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
-        ]
+The input text contains markers, values, and units mixed with other data.
+Extract and return a JSON array of objects, each with:
+- marker (string)
+- value (float)
+- unit (string)
 
-        Input text:
-        \"\"\"
-        {raw_text}
-        \"\"\"
-        """
+### Example output:
+[
+  {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
+  {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
+]
 
+### Input text:
+```text
+{raw_text}
+```"""
+
+    # Call OpenAI
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -59,9 +67,11 @@ def parse_bloodtest_text(raw_text: str):
         max_tokens=500,
     )
 
-    result_text = response.choices[0].message.content
+    result_text = response.choices[0].message.content.strip()
 
+    # Try parsing result
     try:
-        return json.loads(result_text)
+        parsed = json.loads(result_text)
+        return parsed if isinstance(parsed, list) else [parsed]
     except Exception:
         return {"parsed_text": result_text}
