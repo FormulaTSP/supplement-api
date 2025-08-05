@@ -99,11 +99,11 @@ If a marker cannot be clearly identified, skip it.
     try:
         parsed = json.loads(result_text)
 
-        # Case 1: If top-level is a dict with 'parsed_text' as a stringified list
+        # Case 1: If it's a dict with 'parsed_text' as a stringified list
         if isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), str):
             try:
-                inner = json.loads(parsed["parsed_text"])
-                parsed_list = inner if isinstance(inner, list) else [inner]
+                parsed_inner = json.loads(parsed["parsed_text"])
+                parsed_list = parsed_inner if isinstance(parsed_inner, list) else [parsed_inner]
             except Exception as inner_e:
                 return {
                     "structured_bloodtest": {
@@ -113,15 +113,19 @@ If a marker cannot be clearly identified, skip it.
                     "message": f"Failed to parse inner JSON: {str(inner_e)}"
                 }
 
-        # Case 2: If it's a valid list directly
+        # Case 2: If it's a dict with already-parsed 'parsed_text'
+        elif isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), list):
+            parsed_list = parsed["parsed_text"]
+
+        # Case 3: If the top-level result is a list
         elif isinstance(parsed, list):
             parsed_list = parsed
 
-        # Case 3: If it's a stringified list
+        # Case 4: If it's a stringified list
         elif isinstance(parsed, str):
             parsed_list = json.loads(parsed)
 
-        # Fallback: wrap in list
+        # Fallback
         else:
             parsed_list = [parsed]
 
