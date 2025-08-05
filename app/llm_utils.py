@@ -5,18 +5,32 @@ from openai import OpenAI
 
 client = OpenAI()
 
+def try_parse_json_recursive(text):
+    """
+    Recursively attempts to parse JSON until it's no longer a string.
+    Useful when output is stringified multiple times.
+    """
+    depth = 0
+    while isinstance(text, str):
+        try:
+            text = json.loads(text)
+            depth += 1
+        except Exception:
+            break
+    return text
+
 def parse_bloodtest_text(raw_text: str):
     """
     Uses GPT to extract blood test markers from either:
-    - JSON data (e.g. from Excel) — may include date, marker, value
-    - Unstructured text (e.g. from OCR PDF or images)
+    - JSON data (e.g. from Excel)
+    - Unstructured text (e.g. OCR, scanned PDF)
 
     Returns a dict with:
     - structured_bloodtest: { parsed_text: [...], message: "..." }
     - raw_text
     """
 
-    # Try to detect if input is JSON-like
+    # Attempt to detect if input is JSON-like
     try:
         data = json.loads(raw_text)
         is_json = True
@@ -26,15 +40,17 @@ def parse_bloodtest_text(raw_text: str):
     if is_json:
         pretty_json = json.dumps(data, indent=2)
         prompt = f"""
-You are a helpful assistant that extracts blood test results from JSON data representing lab reports.
+You are a helpful assistant that extracts blood test results from structured JSON data (e.g., from Excel exports).
 
-Extract and return a JSON array of objects, each with:
+Return a JSON array of objects. Do NOT wrap the result inside any additional objects or as a string.
+
+Each object should contain:
 - marker (string)
 - value (float)
-- unit (string)
-- if available: date (string in ISO format)
+- unit (string, or empty string if not available)
+- date (ISO 8601 format, if available)
 
-Do not guess unknown values. Only include rows where the marker is identifiable and value is numeric.
+Do NOT guess values or include unknown markers.
 
 ### Example output:
 [
@@ -52,18 +68,17 @@ Do not guess unknown values. Only include rows where the marker is identifiable 
 ```"""
     else:
         prompt = f"""
-You are a helpful assistant that extracts blood test results from raw text (from OCR or scanned lab reports).
+You are a helpful assistant that extracts blood test results from unstructured raw text (e.g., OCR from PDFs or scanned images).
 
-The input text contains blood test marker names, values, and units mixed with other data.
+Return a JSON array of objects. Do NOT wrap the result inside any additional objects or as a string.
 
-Extract and return a JSON array of objects with:
+Each object should contain:
 - marker (string)
 - value (float)
 - unit (string)
 
-Only include entries with clearly identified markers and valid numeric values.
-Do NOT guess marker names (e.g., do not use 'unknown_marker_1').
-If a marker cannot be clearly identified, skip it.
+Only include entries with clearly identified markers and numeric values.
+Skip anything ambiguous or unclear.
 
 ### Example output:
 [
@@ -97,35 +112,13 @@ If a marker cannot be clearly identified, skip it.
         result_text = re.sub(r"\n```$", "", result_text)
 
     try:
-        parsed = json.loads(result_text)
+        parsed = try_parse_json_recursive(result_text)
 
-        # Case 1: If it's a dict with 'parsed_text' as a stringified list
-        if isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), str):
-            try:
-                parsed_inner = json.loads(parsed["parsed_text"])
-                parsed_list = parsed_inner if isinstance(parsed_inner, list) else [parsed_inner]
-            except Exception as inner_e:
-                return {
-                    "structured_bloodtest": {
-                        "parsed_text": parsed["parsed_text"]
-                    },
-                    "raw_text": raw_text,
-                    "message": f"Failed to parse inner JSON: {str(inner_e)}"
-                }
-
-        # Case 2: If it's a dict with already-parsed 'parsed_text'
-        elif isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), list):
-            parsed_list = parsed["parsed_text"]
-
-        # Case 3: If the top-level result is a list
+        if isinstance(parsed, dict) and "parsed_text" in parsed:
+            parsed_inner = try_parse_json_recursive(parsed["parsed_text"])
+            parsed_list = parsed_inner if isinstance(parsed_inner, list) else [parsed_inner]
         elif isinstance(parsed, list):
             parsed_list = parsed
-
-        # Case 4: If it's a stringified list
-        elif isinstance(parsed, str):
-            parsed_list = json.loads(parsed)
-
-        # Fallback
         else:
             parsed_list = [parsed]
 
