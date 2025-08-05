@@ -7,7 +7,7 @@ client = OpenAI()
 
 def try_parse_json_recursive(text):
     """
-    Recursively attempts to parse a JSON string until it's a native Python object.
+    Recursively attempts to parse a JSON string until it's a Python object.
     """
     attempts = 0
     while isinstance(text, str) and attempts < 5:
@@ -20,16 +20,11 @@ def try_parse_json_recursive(text):
 
 def parse_bloodtest_text(raw_text: str):
     """
-    Uses GPT to extract blood test markers from:
-    - JSON input (e.g., Excel exports)
-    - Unstructured text (e.g., OCR, scanned PDFs)
-
-    Returns a dict with:
-    - structured_bloodtest: { parsed_text: list, message: string }
-    - raw_text
+    Uses GPT to extract structured blood test data from either JSON (Excel-like) or raw OCR text.
+    Ensures the final output is a list of dicts under 'structured_bloodtest' -> 'parsed_text'.
     """
 
-    # Detect whether input is JSON-like
+    # Detect JSON input
     try:
         data = json.loads(raw_text)
         is_json = True
@@ -39,27 +34,15 @@ def parse_bloodtest_text(raw_text: str):
     if is_json:
         pretty_json = json.dumps(data, indent=2)
         prompt = f"""
-You are a helpful assistant that extracts blood test results from structured JSON data (e.g., from Excel exports).
+You are a helpful assistant extracting blood test results from structured JSON (e.g., from Excel exports).
 
-Return only a **JSON array of objects** — no extra wrapping, no stringification.
+Return **only** a JSON array of objects (no strings, no wrapping).
 
-Each object should contain:
+Each object should include:
 - marker (string)
 - value (float)
-- unit (string, or empty string if unknown)
-- date (ISO 8601 format, if available)
-
-Only include valid rows with identifiable markers and numeric values.
-
-### Example output:
-[
-  {{
-    "marker": "Hemoglobin",
-    "value": 13.2,
-    "unit": "g/dL",
-    "date": "2023-07-01T08:00:00"
-  }}
-]
+- unit (string or empty)
+- date (ISO 8601 string if available)
 
 ### Input JSON:
 ```json
@@ -67,26 +50,14 @@ Only include valid rows with identifiable markers and numeric values.
 ```"""
     else:
         prompt = f"""
-You are a helpful assistant that extracts blood test results from raw text (e.g., OCR from PDFs or images).
+You are a helpful assistant extracting blood test results from unstructured text (e.g., OCR scans).
 
-Return only a **JSON array of objects** — no extra wrapping, no stringification.
+Return **only** a JSON array of objects (no wrapping).
 
-Each object should contain:
+Each object should include:
 - marker (string)
 - value (float)
 - unit (string)
-
-Only include entries with clearly identified markers and valid numeric values.
-Do NOT include ambiguous or missing data.
-
-### Example output:
-[
-  {{
-    "marker": "Hemoglobin",
-    "value": 13.2,
-    "unit": "g/dL"
-  }}
-]
 
 ### Input text:
 ```text
@@ -105,7 +76,7 @@ Do NOT include ambiguous or missing data.
 
     result_text = response.choices[0].message.content.strip()
 
-    # Remove markdown-style ```json code blocks
+    # Clean up markdown-style code block if GPT uses it
     if result_text.startswith("```"):
         result_text = re.sub(r"^```(?:json)?\n?", "", result_text)
         result_text = re.sub(r"\n```$", "", result_text)
@@ -113,11 +84,11 @@ Do NOT include ambiguous or missing data.
     try:
         parsed = try_parse_json_recursive(result_text)
 
-        # Handle dictionary with 'parsed_text'
+        # If GPT wrapped in dict with 'parsed_text'
         if isinstance(parsed, dict) and "parsed_text" in parsed:
             pt = parsed["parsed_text"]
 
-            # If it's a list of one stringified array
+            # Case: parsed_text is a list of one string
             if isinstance(pt, list) and len(pt) == 1 and isinstance(pt[0], str):
                 parsed_inner = try_parse_json_recursive(pt[0])
             else:
@@ -125,11 +96,15 @@ Do NOT include ambiguous or missing data.
 
             parsed_list = parsed_inner if isinstance(parsed_inner, list) else [parsed_inner]
 
-        # Top-level array (most common case)
+        # If top-level result is a list (ideal)
         elif isinstance(parsed, list):
             parsed_list = parsed
 
-        # Single object or fallback
+        # If it's a stringified list at the top level
+        elif isinstance(parsed, str):
+            parsed_inner = try_parse_json_recursive(parsed)
+            parsed_list = parsed_inner if isinstance(parsed_inner, list) else [parsed_inner]
+
         else:
             parsed_list = [parsed]
 
