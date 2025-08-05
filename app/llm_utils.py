@@ -1,66 +1,42 @@
 import os
 import json
+import re
 from openai import OpenAI
 
 client = OpenAI()
 
 def parse_bloodtest_text(raw_text: str):
     """
-    Extract blood test results from either raw text or JSON-like string input.
-    Returns a list of dictionaries with keys: marker, value, unit.
+    Uses GPT to extract blood test markers from raw OCR text (PDF/image).
+    Expects unstructured text and avoids guessing markers.
     """
 
-    # Try to detect if input is JSON (from Excel or structured data)
-    try:
-        data = json.loads(raw_text)
-        is_json = True
-    except Exception:
-        is_json = False
+    prompt = f"""
+You are a helpful assistant that extracts blood test results from raw text (from OCR or scanned lab reports).
 
-    if is_json:
-        pretty_json = json.dumps(data, indent=2)
-        prompt = f"""You are a helpful assistant that extracts blood test results from JSON data representing tables.
+The input text contains blood test marker names, values, and units mixed with other data.
 
-The JSON contains lists of records with various keys. Extract and return a JSON array of objects, each with:
+Extract and return a JSON array of objects with:
 - marker (string)
 - value (float)
 - unit (string)
 
-Some marker names may include units or localized labels. Only include rows where the value can be parsed as a number.
+Only include entries with clearly identified markers and valid numeric values.
+Do NOT guess marker names (e.g., do not use 'unknown_marker_1').
+If a marker cannot be clearly identified, skip it.
 
-### Example output:
+Example output:
 [
   {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
   {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
 ]
 
-### Input JSON data:
-```json
-{pretty_json}
-```"""
-    else:
-        prompt = f"""You are a helpful assistant that extracts blood test results from raw text.
-
-The input text contains markers, values, and units mixed with other data.
-Extract and return a JSON array of objects, each with:
-- marker (string)
-- value (float)
-- unit (string)
-
-Only include entries with valid numerical values.
-
-### Example output:
-[
-  {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
-  {{"marker": "WBC", "value": 6.1, "unit": "10^3/uL"}}
-]
-
-### Input text:
+Input text:
 ```text
 {raw_text}
-```"""
+```
+"""
 
-    # Call OpenAI
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -73,19 +49,17 @@ Only include entries with valid numerical values.
 
     result_text = response.choices[0].message.content.strip()
 
-    # 👇 Debug log
+    # Debug print
     print("---- GPT RESPONSE ----")
     print(result_text)
     print("----------------------")
 
-    # Try parsing result (strip code block if needed)
-    try:
-        # Handle markdown-style code blocks
-        if result_text.startswith("```"):
-            result_text = result_text.strip("`").strip()
-            if result_text.startswith("json"):
-                result_text = result_text[4:].strip()
+    # Strip markdown-style code blocks
+    if result_text.startswith("```"):
+        result_text = re.sub(r"^```(?:json)?\n", "", result_text)
+        result_text = re.sub(r"\n```$", "", result_text)
 
+    try:
         parsed = json.loads(result_text)
         return parsed if isinstance(parsed, list) else [parsed]
     except Exception:
