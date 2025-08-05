@@ -5,7 +5,7 @@ import io
 from google.cloud import vision
 from google.oauth2 import service_account
 from pdf2image import convert_from_bytes
-from app.llm_utils import parse_bloodtest_text  # your GPT parser
+from app.llm_utils import parse_bloodtest_text
 import pandas as pd
 import logging
 
@@ -84,13 +84,8 @@ async def process_bloodtest(file: UploadFile = File(...)):
         if not raw_text.strip():
             raise HTTPException(status_code=400, detail="No text detected in the blood test file.")
 
-        structured_data = parse_bloodtest_text(raw_text)
-
-        return {
-            "structured_bloodtest": structured_data,
-            "raw_text": raw_text,
-            "message": "Blood test data extracted successfully from Excel." if file_ext in ["xlsx", "xls"] else "Blood test data extracted successfully."
-        }
+        # ✅ FIX: Don't wrap parse_bloodtest_text again
+        return parse_bloodtest_text(raw_text)
 
     except Exception as e:
         logger.error(f"Error processing blood test: {e}", exc_info=True)
