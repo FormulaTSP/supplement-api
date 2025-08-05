@@ -11,11 +11,9 @@ def parse_bloodtest_text(raw_text: str):
     - JSON data (e.g. from Excel) — may include date, marker, value
     - Unstructured text (e.g. from OCR PDF or images)
 
-    Returns a list of dicts with:
-    - marker (string)
-    - value (float)
-    - unit (string)
-    - optionally: date (if available)
+    Returns a dict with:
+    - structured_bloodtest: { parsed_text: [...], message: "..." }
+    - raw_text
     """
 
     # Try to detect if input is JSON-like
@@ -98,12 +96,11 @@ If a marker cannot be clearly identified, skip it.
     print(result_text)
     print("----------------------")
 
-    # Remove code block markers
+    # Remove markdown-style code blocks
     if result_text.startswith("```"):
         result_text = re.sub(r"^```(?:json)?\n?", "", result_text)
         result_text = re.sub(r"\n```$", "", result_text)
 
-    # Try to parse the GPT result
     try:
         parsed = json.loads(result_text)
 
@@ -112,7 +109,21 @@ If a marker cannot be clearly identified, skip it.
             parsed = json.loads(parsed)
 
         # Ensure it's always a list
-        return parsed if isinstance(parsed, list) else [parsed]
+        parsed_list = parsed if isinstance(parsed, list) else [parsed]
 
-    except Exception:
-        return {"parsed_text": result_text}
+        return {
+            "structured_bloodtest": {
+                "parsed_text": parsed_list
+            },
+            "raw_text": raw_text,
+            "message": "Blood test data extracted successfully."
+        }
+
+    except Exception as e:
+        return {
+            "structured_bloodtest": {
+                "parsed_text": result_text
+            },
+            "raw_text": raw_text,
+            "message": f"Failed to parse structured JSON: {str(e)}"
+        }
