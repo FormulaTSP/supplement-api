@@ -86,31 +86,25 @@ If a marker cannot be clearly identified, skip it.
             {"role": "user", "content": prompt}
         ],
         temperature=0,
-        max_tokens=1000,
+        max_tokens=2000,
     )
 
     result_text = response.choices[0].message.content.strip()
-
-    # Debug print
-    print("---- GPT RESPONSE ----")
-    print(result_text)
-    print("----------------------")
 
     # Remove markdown-style code blocks
     if result_text.startswith("```"):
         result_text = re.sub(r"^```(?:json)?\n?", "", result_text)
         result_text = re.sub(r"\n```$", "", result_text)
 
+    # Try to parse JSON
     try:
         parsed = json.loads(result_text)
 
-        # Unwrap up to 3 levels of stringified JSON
-        for _ in range(3):
-            if isinstance(parsed, str):
-                parsed = json.loads(parsed)
-            else:
-                break
+        # If it's a stringified JSON (e.g., GPT returned a string inside a string), parse again
+        if isinstance(parsed, str):
+            parsed = json.loads(parsed)
 
+        # Ensure it's always a list
         parsed_list = parsed if isinstance(parsed, list) else [parsed]
 
         return {
@@ -124,7 +118,7 @@ If a marker cannot be clearly identified, skip it.
     except Exception as e:
         return {
             "structured_bloodtest": {
-                "parsed_text": result_text  # fallback string
+                "parsed_text": result_text
             },
             "raw_text": raw_text,
             "message": f"Failed to parse structured JSON: {str(e)}"
