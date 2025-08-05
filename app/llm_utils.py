@@ -104,11 +104,13 @@ If a marker cannot be clearly identified, skip it.
     try:
         parsed = json.loads(result_text)
 
-        # If result is a stringified JSON (double parsing)
-        if isinstance(parsed, str):
-            parsed = json.loads(parsed)
+        # Unwrap up to 3 levels of stringified JSON
+        for _ in range(3):
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            else:
+                break
 
-        # Ensure it's always a list
         parsed_list = parsed if isinstance(parsed, list) else [parsed]
 
         return {
@@ -122,7 +124,7 @@ If a marker cannot be clearly identified, skip it.
     except Exception as e:
         return {
             "structured_bloodtest": {
-                "parsed_text": result_text
+                "parsed_text": result_text  # fallback string
             },
             "raw_text": raw_text,
             "message": f"Failed to parse structured JSON: {str(e)}"
