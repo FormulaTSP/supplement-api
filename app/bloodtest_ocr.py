@@ -5,7 +5,8 @@ import io
 from google.cloud import vision
 from google.oauth2 import service_account
 from pdf2image import convert_from_bytes
-from app.llm_utils import parse_bloodtest_text  # We’ll write this
+from app.llm_utils import parse_bloodtest_text  # your GPT parser
+import pandas as pd
 import logging
 
 router = APIRouter()
@@ -27,9 +28,30 @@ async def process_bloodtest(file: UploadFile = File(...)):
     file_ext = file.filename.split(".")[-1].lower()
 
     try:
-        if file_ext == "pdf":
+        if file_ext in ["xlsx", "xls"]:
+            # Parse Excel file
+            try:
+                df = pd.read_excel(io.BytesIO(content))
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Failed to parse Excel file: {str(e)}")
+
+            # Normalize column names to lowercase
+            df.columns = [col.lower() for col in df.columns]
+
+            required_cols = {"marker", "value", "unit"}
+            if not required_cols.issubset(set(df.columns)):
+                raise HTTPException(status_code=400, detail=f"Excel file must contain columns: {required_cols}")
+
+            blood_tests = df.to_dict(orient="records")
+
+            return {
+                "structured_bloodtest": blood_tests,
+                "message": "Blood test data extracted successfully from Excel."
+            }
+
+        elif file_ext == "pdf":
+            # OCR all pages of PDF
             images = convert_from_bytes(content)
-            # We'll OCR all pages and concat the text
             full_text = ""
             for image in images:
                 img_byte_arr = io.BytesIO()
@@ -39,7 +61,9 @@ async def process_bloodtest(file: UploadFile = File(...)):
                 response = client.text_detection(image=image_vision)
                 text = response.text_annotations[0].description if response.text_annotations else ""
                 full_text += text + "\n"
+
         else:
+            # Treat as image file (png, jpeg, etc)
             image_vision = vision.Image(content=content)
             response = client.text_detection(image=image_vision)
             full_text = response.text_annotations[0].description if response.text_annotations else ""
