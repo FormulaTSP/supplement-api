@@ -142,3 +142,12 @@ app.include_router(receipt_router)
 
 from app.grocery_router import router as grocery_router
 app.include_router(grocery_router)
+
+from app.receipt_ocr import router as receipt_router
+app.include_router(receipt_router)
+
+from app.grocery_router import router as grocery_router
+app.include_router(grocery_router)
+
+from app.bloodtest_ocr import router as bloodtest_router
+app.include_router(bloodtest_router)
