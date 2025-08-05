@@ -69,6 +69,10 @@ Extract and return a JSON array of objects, each with:
 
     result_text = response.choices[0].message.content.strip()
 
+    print("---- GPT RESPONSE ----")
+    print(result_text)
+    print("----------------------")
+
     # Try parsing result
     try:
         parsed = json.loads(result_text)
