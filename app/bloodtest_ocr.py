@@ -29,28 +29,22 @@ async def process_bloodtest(file: UploadFile = File(...)):
 
     try:
         if file_ext in ["xlsx", "xls"]:
-            # Parse Excel file
             try:
-                df = pd.read_excel(io.BytesIO(content))
+                xls = pd.ExcelFile(io.BytesIO(content))
+                sheets_data = {}
+                for sheet_name in xls.sheet_names:
+                    df = xls.parse(sheet_name=sheet_name, dtype=str)  # Read all as strings
+                    # Replace NaNs with empty strings for better parsing
+                    df = df.fillna("")
+                    sheets_data[sheet_name] = df.to_dict(orient="records")
+
+                # Convert all sheet data to pretty JSON string to send to GPT parser
+                raw_text = json.dumps(sheets_data, indent=2)
+
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Failed to parse Excel file: {str(e)}")
 
-            # Normalize column names to lowercase
-            df.columns = [col.lower() for col in df.columns]
-
-            required_cols = {"marker", "value", "unit"}
-            if not required_cols.issubset(set(df.columns)):
-                raise HTTPException(status_code=400, detail=f"Excel file must contain columns: {required_cols}")
-
-            blood_tests = df.to_dict(orient="records")
-
-            return {
-                "structured_bloodtest": blood_tests,
-                "message": "Blood test data extracted successfully from Excel."
-            }
-
         elif file_ext == "pdf":
-            # OCR all pages of PDF
             images = convert_from_bytes(content)
             full_text = ""
             for image in images:
@@ -61,22 +55,22 @@ async def process_bloodtest(file: UploadFile = File(...)):
                 response = client.text_detection(image=image_vision)
                 text = response.text_annotations[0].description if response.text_annotations else ""
                 full_text += text + "\n"
+            raw_text = full_text
 
         else:
-            # Treat as image file (png, jpeg, etc)
             image_vision = vision.Image(content=content)
             response = client.text_detection(image=image_vision)
-            full_text = response.text_annotations[0].description if response.text_annotations else ""
+            raw_text = response.text_annotations[0].description if response.text_annotations else ""
 
-        if not full_text.strip():
+        if not raw_text.strip():
             raise HTTPException(status_code=400, detail="No text detected in the blood test file.")
 
-        # Send text to GPT to parse markers, values, units
-        structured_data = parse_bloodtest_text(full_text)
+        # Pass the raw_text (JSON for Excel, text for others) to your GPT parser
+        structured_data = parse_bloodtest_text(raw_text)
 
         return {
             "structured_bloodtest": structured_data,
-            "raw_text": full_text
+            "raw_text": raw_text
         }
 
     except Exception as e:
