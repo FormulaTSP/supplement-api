@@ -99,11 +99,11 @@ If a marker cannot be clearly identified, skip it.
     try:
         parsed = json.loads(result_text)
 
-        # Case 1: If top-level is a dict with stringified 'parsed_text'
+        # Case 1: If top-level is a dict with 'parsed_text' as a stringified list
         if isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), str):
             try:
-                parsed["parsed_text"] = json.loads(parsed["parsed_text"])
-                parsed_list = parsed["parsed_text"]
+                inner = json.loads(parsed["parsed_text"])
+                parsed_list = inner if isinstance(inner, list) else [inner]
             except Exception as inner_e:
                 return {
                     "structured_bloodtest": {
