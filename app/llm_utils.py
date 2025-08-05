@@ -1,72 +1,52 @@
-import json
-import re
-from openai import OpenAI
-
-client = OpenAI()
-
-def try_parse_json_recursive(text):
-    """
-    Recursively tries to parse JSON strings until a real object (list/dict) is obtained.
-    """
-    attempts = 0
-    while isinstance(text, str) and attempts < 5:
-        text = text.strip()
-
-        # Remove markdown code block markers if present
-        if text.startswith("```"):
-            text = re.sub(r"^```(?:json)?\n?", "", text)
-            text = re.sub(r"\n```$", "", text)
-
-        try:
-            text = json.loads(text)
-            attempts += 1
-        except Exception:
-            break
-    return text
-
 def parse_bloodtest_text(raw_text: str):
     """
-    Parses either raw OCR text or JSON to extract structured blood test values.
-    Ensures consistent output format.
+    Parses OCR or GPT JSON output into structured blood test data.
+    Fixes cases where parsed_text is a string inside a list.
     """
+    import json
+    import re
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    def try_parse_json_recursive(text):
+        attempts = 0
+        while isinstance(text, str) and attempts < 5:
+            text = text.strip()
+            if text.startswith("```"):
+                text = re.sub(r"^```(?:json)?\n?", "", text)
+                text = re.sub(r"\n```$", "", text)
+            try:
+                text = json.loads(text)
+            except Exception:
+                break
+            attempts += 1
+        return text
+
+    is_json = False
     try:
         json.loads(raw_text)
         is_json = True
     except Exception:
-        is_json = False
+        pass
 
-    if is_json:
-        prompt = f"""
-You are a helpful assistant extracting blood test results from JSON-like data.
+    prompt = f"""
+You are a helpful assistant extracting blood test results from {'JSON' if is_json else 'OCR'} text.
 
-Return only a JSON array of objects, no strings or wrapping.
+Return only a JSON array of objects (do not wrap in a string or another object).
 
-Each object should include:
+Each object must include:
 - marker (string)
 - value (float)
-- unit (string or empty)
-- date (ISO 8601 string)
+- unit (optional)
+- date (if available)
 
-### Input:
-{raw_text}
-"""
-    else:
-        prompt = f"""
-You are a helpful assistant extracting blood test results from messy OCR text.
-
-Return only a JSON array of objects.
-
-Each object should include:
-- marker (string)
-- value (float)
-- unit (string or empty)
-
-### Input:
+Input:
 {raw_text}
 """
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "Extract structured blood test data as JSON."},
             {"role": "user", "content": prompt}
@@ -78,31 +58,30 @@ Each object should include:
     result_text = response.choices[0].message.content.strip()
     parsed = try_parse_json_recursive(result_text)
 
-    # Handle cases like { "parsed_text": "[...]" }
-    if isinstance(parsed, dict) and "parsed_text" in parsed:
-        pt = parsed["parsed_text"]
+    # 🔥 Final unwrap fix
+    def unwrap(parsed):
+        if isinstance(parsed, dict) and "parsed_text" in parsed:
+            pt = parsed["parsed_text"]
 
-        if isinstance(pt, list) and len(pt) == 1 and isinstance(pt[0], str):
-            # Unwrap ["[...]"]
-            inner = try_parse_json_recursive(pt[0])
-        elif isinstance(pt, str):
-            inner = try_parse_json_recursive(pt)
-        else:
-            inner = pt
-    else:
-        inner = parsed
+            # Case: ["{...}"]
+            if isinstance(pt, list) and len(pt) == 1 and isinstance(pt[0], str):
+                pt = try_parse_json_recursive(pt[0])
+            elif isinstance(pt, str):
+                pt = try_parse_json_recursive(pt)
 
-    # Final safety: if still a string, parse again
-    if isinstance(inner, str):
-        inner = try_parse_json_recursive(inner)
+            parsed["parsed_text"] = pt
+            return parsed
+        return {
+            "structured_bloodtest": {
+                "parsed_text": parsed if isinstance(parsed, list) else [parsed]
+            }
+        }
 
-    # If somehow still not a list, wrap
-    if not isinstance(inner, list):
-        inner = [inner]
+    final = unwrap(parsed)
 
     return {
         "structured_bloodtest": {
-            "parsed_text": inner
+            "parsed_text": final["structured_bloodtest"]["parsed_text"]
         },
         "raw_text": raw_text,
         "message": "Blood test data extracted successfully."
