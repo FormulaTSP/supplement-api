@@ -12,4 +12,4 @@ python-multipart
 supabase
 pdf2image
 openpyxl
-piptoken
+tiktoken
