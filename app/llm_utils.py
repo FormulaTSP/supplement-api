@@ -26,6 +26,8 @@ The JSON contains lists of records with various keys. Extract and return a JSON 
 - value (float)
 - unit (string)
 
+Some marker names may include units or localized labels. Only include rows where the value can be parsed as a number.
+
 ### Example output:
 [
   {{"marker": "Hemoglobin", "value": 13.2, "unit": "g/dL"}},
@@ -44,6 +46,8 @@ Extract and return a JSON array of objects, each with:
 - marker (string)
 - value (float)
 - unit (string)
+
+Only include entries with valid numerical values.
 
 ### Example output:
 [
@@ -69,12 +73,19 @@ Extract and return a JSON array of objects, each with:
 
     result_text = response.choices[0].message.content.strip()
 
+    # 👇 Debug log
     print("---- GPT RESPONSE ----")
     print(result_text)
     print("----------------------")
 
-    # Try parsing result
+    # Try parsing result (strip code block if needed)
     try:
+        # Handle markdown-style code blocks
+        if result_text.startswith("```"):
+            result_text = result_text.strip("`").strip()
+            if result_text.startswith("json"):
+                result_text = result_text[4:].strip()
+
         parsed = json.loads(result_text)
         return parsed if isinstance(parsed, list) else [parsed]
     except Exception:
