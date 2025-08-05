@@ -96,16 +96,34 @@ If a marker cannot be clearly identified, skip it.
         result_text = re.sub(r"^```(?:json)?\n?", "", result_text)
         result_text = re.sub(r"\n```$", "", result_text)
 
-    # Try to parse JSON
     try:
         parsed = json.loads(result_text)
 
-        # If it's a stringified JSON (e.g., GPT returned a string inside a string), parse again
-        if isinstance(parsed, str):
-            parsed = json.loads(parsed)
+        # Case 1: If top-level is a dict with stringified 'parsed_text'
+        if isinstance(parsed, dict) and isinstance(parsed.get("parsed_text"), str):
+            try:
+                parsed["parsed_text"] = json.loads(parsed["parsed_text"])
+                parsed_list = parsed["parsed_text"]
+            except Exception as inner_e:
+                return {
+                    "structured_bloodtest": {
+                        "parsed_text": parsed["parsed_text"]
+                    },
+                    "raw_text": raw_text,
+                    "message": f"Failed to parse inner JSON: {str(inner_e)}"
+                }
 
-        # Ensure it's always a list
-        parsed_list = parsed if isinstance(parsed, list) else [parsed]
+        # Case 2: If it's a valid list directly
+        elif isinstance(parsed, list):
+            parsed_list = parsed
+
+        # Case 3: If it's a stringified list
+        elif isinstance(parsed, str):
+            parsed_list = json.loads(parsed)
+
+        # Fallback: wrap in list
+        else:
+            parsed_list = [parsed]
 
         return {
             "structured_bloodtest": {
