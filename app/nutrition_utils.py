@@ -2,47 +2,20 @@
 
 import os
 import json
-from typing import Any, Dict, List, Tuple
+from openai import OpenAI
 
-# OpenAI client (graceful fallback if key not set)
-try:
-    from openai import OpenAI
-    _openai_available = True
-except Exception:  # package missing or import error
-    _openai_available = False
-    OpenAI = None  # type: ignore
+client = OpenAI()  # Picks up OPENAI_API_KEY from environment
 
-def _get_openai_client():
+
+def categorize_items_with_llm(item_list, store_name=None):
     """
-    Returns an OpenAI client if OPENAI_API_KEY is present and package is installed;
-    otherwise returns None so we can fail gracefully.
+    Uses GPT-4o to analyze grocery items and return structured nutrition data:
+    - Clean name
+    - Form (fresh/frozen/dried/etc.)
+    - Estimated amount (g)
+    - Category
+    - Nutrients per 100g (complete list)
     """
-    if not _openai_available:
-        return None
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return None
-    try:
-        return OpenAI()  # picks up OPENAI_API_KEY from env
-    except Exception:
-        return None
-
-_client = _get_openai_client()
-
-
-def categorize_items_with_llm(item_list: Any, store_name: str | None = None) -> List[Dict[str, Any]]:
-    """
-    Uses GPT-4o to analyze grocery items and return structured nutrition data.
-    Returns a JSON-like Python list of objects with:
-      - name (str): cleaned food name
-      - form (str): fresh, frozen, dried, cooked, etc.
-      - amount_g (float|int): estimated weight in grams
-      - category (str): broad category (Fruit, Vegetable, Dairy, Protein, Grain, etc.)
-      - nutrients_per_100g (dict): keys like vitamins/minerals/macros (best-effort)
-    """
-    if _client is None:
-        # No key or OpenAI package missing; return empty so callers can decide a fallback path.
-        return []
 
     system_message = {
         "role": "system",
@@ -66,110 +39,21 @@ def categorize_items_with_llm(item_list: Any, store_name: str | None = None) -> 
         "    Mg (mg), Zn (mg), Omega-3 (EPA/DHA), Probiotika, calories, carbs, protein, fats, fiber"
     )
 
-    user_message = {"role": "user", "content": prompt_content}
+    user_message = {
+        "role": "user",
+        "content": prompt_content
+    }
 
-    response = _client.chat.completions.create(  # type: ignore[union-attr]
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[system_message, user_message],
-        temperature=0.4,
+        temperature=0.4
     )
 
     try:
-        parsed = json.loads(response.choices[0].message.content)  # type: ignore[index]
-        # Ensure a list is returned
-        return parsed if isinstance(parsed, list) else []
+        parsed = json.loads(response.choices[0].message.content)
+        return parsed
     except Exception as e:
         print("Error parsing response:", e)
-        try:
-            print("Raw response:", response.choices[0].message.content)  # type: ignore[index]
-        except Exception:
-            pass
+        print("Raw response:", response.choices[0].message.content)
         return []
-
-
-def estimate_nutrients(categorized: Any) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """
-    Compatibility stub so receipt_ocr.py can import and call this.
-
-    Parameters
-    ----------
-    categorized : can be:
-      - list of dicts/strings, or
-      - dict with key "items" holding that list
-
-    Returns
-    -------
-    (consumed_foods, dietary_intake)
-      consumed_foods : list[dict] with normalized items (name, quantity, unit, optional macro placeholders)
-      dietary_intake : dict with "totals" holding summed macros (zeros by default here)
-
-    Notes
-    -----
-    - This stub returns zeros by default. If the upstream categorizer already put numeric fields
-      on items (e.g., kcal, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg), you can uncomment
-      the summation block below to aggregate them.
-    - Replace this stub with your real implementation when ready.
-    """
-
-    # Normalize to a list of items
-    if isinstance(categorized, dict) and "items" in categorized:
-        items = categorized.get("items") or []
-    else:
-        items = categorized or []
-
-    consumed: List[Dict[str, Any]] = []
-
-    totals: Dict[str, float] = {
-        "kcal": 0.0,
-        "protein_g": 0.0,
-        "carbs_g": 0.0,
-        "fat_g": 0.0,
-        "fiber_g": 0.0,
-        "sugar_g": 0.0,
-        "sodium_mg": 0.0,
-    }
-
-    for it in items:
-        if isinstance(it, dict):
-            name = it.get("name") or it.get("item") or str(it)
-            qty = it.get("quantity") or 1
-            unit = it.get("unit") or "item"
-            kcal = float(it.get("kcal", 0) or 0)
-            protein_g = float(it.get("protein_g", 0) or 0)
-            carbs_g = float(it.get("carbs_g", 0) or 0)
-            fat_g = float(it.get("fat_g", 0) or 0)
-            fiber_g = float(it.get("fiber_g", 0) or 0)
-            sugar_g = float(it.get("sugar_g", 0) or 0)
-            sodium_mg = float(it.get("sodium_mg", 0) or 0)
-        else:
-            name = str(it)
-            qty = 1
-            unit = "item"
-            kcal = protein_g = carbs_g = fat_g = fiber_g = sugar_g = sodium_mg = 0.0
-
-        consumed.append(
-            {
-                "name": name,
-                "quantity": qty,
-                "unit": unit,
-                "kcal": kcal,
-                "protein_g": protein_g,
-                "carbs_g": carbs_g,
-                "fat_g": fat_g,
-                "fiber_g": fiber_g,
-                "sugar_g": sugar_g,
-                "sodium_mg": sodium_mg,
-            }
-        )
-
-        # If you want to sum any provided values right now, uncomment:
-        # totals["kcal"]      += kcal
-        # totals["protein_g"] += protein_g
-        # totals["carbs_g"]   += carbs_g
-        # totals["fat_g"]     += fat_g
-        # totals["fiber_g"]   += fiber_g
-        # totals["sugar_g"]   += sugar_g
-        # totals["sodium_mg"] += sodium_mg
-
-    dietary_intake: Dict[str, Any] = {"totals": totals}
-    return consumed, dietary_intake
