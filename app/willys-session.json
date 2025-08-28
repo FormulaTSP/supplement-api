@@ -1,0 +1,339 @@
+{
+  "cookies": [
+    {
+      "name": "JSESSIONID",
+      "value": "Y1-e37ef5fb-dc4d-42f3-92a3-9d73beae4135",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": 1755807541.811288,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "imbox",
+      "value": "{\"imboxUid\":\"31bvfQtSQ6IUNzWYZud6GHWE2sb\"}",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": 1758397741,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gcl_au",
+      "value": "1.1.1411185917.1755805692",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1763581692,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "sg_optin",
+      "value": "1",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1763581741,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "CLID",
+      "value": "1eb84eb580964a7b9b58d919dc87a778.20250821.20260821",
+      "domain": "www.clarity.ms",
+      "path": "/",
+      "expires": 1787341692.028631,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.1.1184312135.1755805692",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1790365741.209612,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "guid",
+      "value": "1.5791229650656146174",
+      "domain": ".de17a.com",
+      "path": "/",
+      "expires": 1786909692.108634,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_hjSession_3627942",
+      "value": "eyJpZCI6IjUwM2YyYmU1LWUxMDItNDljMS04NTYxLTRjYzIzNDdmNGQ3NyIsImMiOjE3NTU4MDU2OTIxMzEsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1755807522,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_clck",
+      "value": "gc1cgl%5E2%5Efyn%5E0%5E2059",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1787341692,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "OptanonAlertBoxClosed",
+      "value": "2025-08-21T19:48:12.212Z",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1787341692,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "MUID",
+      "value": "1297B4AD9D916EE8197DA2E29CB96FFA",
+      "domain": ".bing.com",
+      "path": "/",
+      "expires": 1789501692.260848,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "MR",
+      "value": "0",
+      "domain": ".c.bing.com",
+      "path": "/",
+      "expires": 1756410492.261002,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "SRM_B",
+      "value": "1297B4AD9D916EE8197DA2E29CB96FFA",
+      "domain": ".c.bing.com",
+      "path": "/",
+      "expires": 1789501692.261049,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "SM",
+      "value": "C",
+      "domain": ".c.clarity.ms",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "MUID",
+      "value": "1297B4AD9D916EE8197DA2E29CB96FFA",
+      "domain": ".clarity.ms",
+      "path": "/",
+      "expires": 1789501692.313028,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "MR",
+      "value": "0",
+      "domain": ".c.clarity.ms",
+      "path": "/",
+      "expires": 1756410492.313085,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ANONCHK",
+      "value": "0",
+      "domain": ".c.clarity.ms",
+      "path": "/",
+      "expires": 1755806292.313117,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sg_cs_object",
+      "value": "{%225620544%22:{%22ga_queue%22:[]%2C%22hsak_192530014%22:true}}",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1755807541,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "acceleratorSecureGUID",
+      "value": "9afdc0f431da485275e02afecc8263dee0fc5775",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "axfoodRememberMe",
+      "value": "MDAwZmJlcHE6MTc2MzA2MzMwNTk5OTo3MGE1Y2I1ZWExZDk5Mjc5NWVkYTlkNThkMGIwZjQxZA",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": 1763063306.252873,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_hjHasCachedUserAttributes",
+      "value": "true",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sg_cookies",
+      "value": "{%225620544%22:{%22192530014%22:[11329422]%2C%22rf%22:%22%22%2C%22sc%22:1%2C%22lv%22:1755805691962%2C%22pv%22:3%2C%22tv%22:2%2C%22visid%22:%22f936282c-2744-4c63-987f-4d417b90f886%22%2C%22aud_p%22:[192530014]%2C%22192530014_ch%22:1%2C%22commid%22:%22469d2b70-7812-458d-bb01-6a5fcb01c1f4%22%2C%22pv_p%22:{%22192530014%22:2}%2C%22tv_p%22:{%22192530014%22:1}}%2C%22_g%22:1}",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1763581741,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "sg_cf_object",
+      "value": "{%225620544%22:{%22gs_192530014%22:{%2248649%22:3}}}",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1763581740,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "RequestId",
+      "value": "qE7ZzDrKkXKBQo4P5v7qBUAnUxlb3DsmvNzH",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_hjSessionUser_3627942",
+      "value": "eyJpZCI6ImYwYjAzN2M2LTczNDUtNTVhYS05ZTFkLWFhY2EzZDJiZGM0MyIsImNyZWF0ZWQiOjE3NTU4MDU2OTIxMzAsImV4aXN0aW5nIjp0cnVlfQ==",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1787341741,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "OptanonConsent",
+      "value": "isGpcEnabled=0&datestamp=Thu+Aug+21+2025+21%3A49%3A01+GMT%2B0200+(Central+European+Summer+Time)&version=202503.1.0&browserGpcFlag=0&isIABGlobal=false&consentId=566629cd-91aa-435a-86c2-6ba88418147e&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A1%2CC0003%3A1%2CC0004%3A1&hosts=H25%3A1%2CH8%3A1%2CH3%3A1%2CH11%3A1&genVendors=&intType=1&geolocation=SE%3BAB&AwaitingReconsent=false",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1787341741,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_1BYXDYG1K3",
+      "value": "GS2.1.s1755805692$o1$g1$t1755805741$j11$l0$h0",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1790365741.443961,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_clsk",
+      "value": "1tbkxpt%5E1755805741675%5E3%5E0%5Ej.clarity.ms%2Fcollect",
+      "domain": ".willys.se",
+      "path": "/",
+      "expires": 1755892141,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "AWSALB",
+      "value": "1MTUPYiE0NhASkpCwNnQGxS/lMcDgSW3QorJjmVahcajGrfgVvRYLG7qtRawUfbZGDgJm8TMNNlcbe37cqdtKjS+PT4s+iKGH+WiUJyej0dhxWPpZKiiFXBmsj9y",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": 1756410541.811162,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "AWSALBCORS",
+      "value": "1MTUPYiE0NhASkpCwNnQGxS/lMcDgSW3QorJjmVahcajGrfgVvRYLG7qtRawUfbZGDgJm8TMNNlcbe37cqdtKjS+PT4s+iKGH+WiUJyej0dhxWPpZKiiFXBmsj9y",
+      "domain": "www.willys.se",
+      "path": "/",
+      "expires": 1756410541.811245,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.willys.se",
+      "localStorage": [
+        {
+          "name": "ga4_ecom_data",
+          "value": "{\"listData\":[],\"promoData\":[]}"
+        },
+        {
+          "name": "NRBA_SESSION",
+          "value": "{\"value\":\"78fead88816bd841\",\"inactiveAt\":1755807493297,\"expiresAt\":1755820089670,\"updatedAt\":1755805740644,\"sessionReplayMode\":0,\"sessionReplaySentFirstChunk\":false,\"sessionTraceMode\":0,\"traceHarvestStarted\":false,\"loggingMode\":0,\"serverTimeDiff\":193,\"custom\":{},\"numOfResets\":0}"
+        },
+        {
+          "name": "_hjUserAttributes",
+          "value": "eyJhdHRyaWJ1dGVzIjp7ImN1c3RvbWVyX3R5cGUiOiJpbmRpdmlkdWFsIiwiZGV2aWNlIjoiV2ViIiwibG9nZ2VkX2luIjoidHJ1ZSIsInJlcXVlc3RfaWQiOiI4YTgwZTQ0Zi04ODIxLTQ0ZTAtYjlhNy03ZTkxZTY5NjI4NjEiLCJzdG9yZV9pZCI6Im51bGwifSwidXNlcklkIjpudWxsfQ=="
+        },
+        {
+          "name": "willys.bankIdTabLastSelected",
+          "value": "true"
+        },
+        {
+          "name": "__anon_id",
+          "value": "\"eb5db7a1-0123-46e3-a6c1-42d94a712282\""
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"creationTimeMs\":1755805691943},\"expires\":1763581691943}}"
+        },
+        {
+          "name": "sg_ls_object",
+          "value": "{\"pageViews\":{\"https://www.willys.se/anvandare/inloggning\":{\"pageview\":1,\"clicks\":3},\"https://www.willys.se/\":{\"pageview\":1},\"https://www.willys.se/mina-kop\":{\"pageview\":1}},\"Website\":{\"geoData\":{\"as\":\"AS3301 Telia Company AB\",\"city\":\"Tullinge\",\"country\":\"Sweden\",\"countryCode\":\"SE\",\"isp\":\"Telia Company AB\",\"lat\":59.2,\"lon\":17.9,\"org\":\"Telia Company AB\",\"query\":\"90.224.237.112\",\"region\":\"AB\",\"regionName\":\"Stockholm County\",\"status\":\"success\",\"timezone\":\"Europe/Stockholm\",\"zip\":\"146 20\",\"sg_updated\":\"2025-08-21T19:48:12.105Z\"},\"PersonalData\":{\"totalClicks\":3}}}"
+        }
+      ]
+    }
+  ]
+}

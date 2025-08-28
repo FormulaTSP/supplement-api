@@ -1,0 +1,154 @@
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, Alignment, PatternFill
+
+# File name
+file_name = "Revenue_Model_Dynamic_Professional.xlsx"
+
+# Assumptions with detailed explanations and dynamic toggles
+assumptions = [
+    ("Use Custom TAM (0/1)", 0, "Toggle: 1 to use Custom TAM, 0 to use default 100,000"),
+    ("Custom TAM", 120000, "Your own estimate for total users when open"),
+    ("% Loyal ICA Users", 0.30, "Share of open users shopping mostly at ICA"),
+    ("Users (Open)", None, "Formula: =IF(B2=1, B3, 100000)"),
+    ("Users (Exclusive)", None, "Formula: =B4 * B3"),
+    ("% Choosing Formula", 0.4, "Share choosing personalized subscription"),
+    ("ICA Product Price (€)", 20, "Price per user for ICA supplements"),
+    ("Formula Price (€)", 30, "Price per user for Formula subscription"),
+    ("Commission Rate (%)", 0.10, "Platform cut on ICA sales"),
+    ("Receipt Cost per Receipt (€)", 0.05, "Cost per receipt synced"),
+    ("Receipts per User/Month", 4, "Avg receipts per user per month"),
+    ("ICA Receipt Share", 0.40, "ICA share of total receipts in open model"),
+]
+
+# Scenario definitions: (name, users_key, has_formula, open_model)
+scenarios = [
+    ("ICA Exclusive—No Formula", "Users (Exclusive)", False, False),
+    ("ICA Exclusive—With Formula", "Users (Exclusive)", True, False),
+    ("Open—No Formula", "Users (Open)", False, True),
+    ("Open—With Formula", "Users (Open)", True, True),
+]
+
+# Create workbook
+wb = Workbook()
+ws = wb.active
+ws.title = "Assumptions"
+
+# Styles
+hdr_font = Font(bold=True)
+hdr_fill = PatternFill(fill_type="solid", start_color="BDD7EE", end_color="BDD7EE")
+wrap = Alignment(wrap_text=True, vertical="top")
+
+# Write Assumptions header
+ws.append(["Parameter", "Value", "Explanation"])
+for col in range(1,4):
+    cell = ws.cell(row=1, column=col)
+    cell.font = hdr_font
+    cell.fill = hdr_fill
+    ws.column_dimensions[get_column_letter(col)].width = 45
+
+# Populate assumptions and formulas
+param_cell = {}
+for i, (param, val, expl) in enumerate(assumptions, start=2):
+    ws.cell(row=i, column=1, value=param).alignment = wrap
+    if val is not None:
+        ws.cell(row=i, column=2, value=val)
+    if param == "Users (Open)":
+        ws.cell(row=i, column=2, value="=IF(B2=1,B3,100000)")
+    if param == "Users (Exclusive)":
+        ws.cell(row=i, column=2, value="=B4*B3")
+    ws.cell(row=i, column=3, value=expl).alignment = wrap
+    param_cell[param] = f"'Assumptions'!B{i}"
+
+# Create Scenarios sheet
+ws2 = wb.create_sheet("Scenarios")
+ws2.append(["Metric"] + [s[0] for s in scenarios])
+for c in range(1, len(scenarios)+2):
+    cell = ws2.cell(row=1, column=c)
+    cell.font = hdr_font
+    cell.fill = hdr_fill
+    ws2.column_dimensions[get_column_letter(c)].width = 30 if c>1 else 40
+
+# Define metrics
+metrics = [
+    "Total Users",
+    "ICA Users",
+    "Formula Users",
+    "ICA Sales",
+    "Formula Sales",
+    "Platform Rev ICA",
+    "Platform Rev Formula",
+    "Total Receipts",
+    "Receipt Cost",
+    "Net Platform Rev",
+    "ICA Net Sales",
+    "ICA Data Rev",
+    "ICA Total Earnings"
+]
+
+# Populate metrics
+for r, m in enumerate(metrics, start=2):
+    ws2.cell(row=r, column=1, value=m)
+    for c,(title,uk,hasF,openM) in enumerate(scenarios, start=2):
+        col = get_column_letter(c)
+        u = param_cell[uk]
+        pct = param_cell["% Choosing Formula"]
+        pri = param_cell["ICA Product Price (€)"]
+        prf = param_cell["Formula Price (€)"]
+        com = param_cell["Commission Rate (%)"]
+        rpt = param_cell["Receipt Cost per Receipt (€)"]
+        rpm = param_cell["Receipts per User/Month"]
+        shr = param_cell["ICA Receipt Share"]
+        if m=="Total Users":
+            f = f"={u}"
+        elif m=="ICA Users":
+            f = f"={col}{r-1}*(1-{pct})"
+        elif m=="Formula Users":
+            f = f"={col}{r-2}*{pct}" if hasF else "0"
+        elif m=="ICA Sales":
+            f = f"={col}{r-2}*{pri}"
+        elif m=="Formula Sales":
+            f = f"={col}{r-2}*{prf}" if hasF else "0"
+        elif m=="Platform Rev ICA":
+            f = f"={col}{r-2}*{com}"
+        elif m=="Platform Rev Formula":
+            f = f"={col}{r-2}" if hasF else "0"
+        elif m=="Total Receipts":
+            f = f"={col}2*{rpm}"
+        elif m=="Receipt Cost":
+            f = f"={col}{r-1}*{rpt}"
+        elif m=="Net Platform Rev":
+            f = f"={col}{r-5}+{col}{r-4}-{col}{r-1}"
+        elif m=="ICA Net Sales":
+            f = f"={col}{r-5}*(1-{com})"
+        elif m=="ICA Data Rev":
+            f = f"={col}{r-3}*{shr}"
+        elif m=="ICA Total Earnings":
+            f = f"={col}{r-2}+{col}{r-1}"
+        else:
+            f = ""
+        ws2.cell(row=r, column=c, value=f)
+
+# Create Summary sheet
+ws3 = wb.create_sheet("Summary")
+ws3.append(["Scenario", "Platform Net Rev", "ICA Total Earnings"])
+for c in range(1,4):
+    cell = ws3.cell(row=1, column=c)
+    cell.font = hdr_font
+    cell.fill = hdr_fill
+    ws3.column_dimensions[get_column_letter(c)].width = 30
+
+# Summary formulas: Net Platform Rev at row 10, ICA Total Earnings at row 14
+for i,(title,_,_,_) in enumerate(scenarios, start=2):
+    cl = get_column_letter(i)
+    ws3.cell(row=i, column=1, value=title)
+    ws3.cell(row=i, column=2, value=f"=Scenarios!{cl}10")
+    ws3.cell(row=i, column=3, value=f"=Scenarios!{cl}14")
+
+# Remove default sheet
+if "Sheet" in wb.sheetnames:
+    del wb["Sheet"]
+
+# Save workbook
+wb.save(file_name)
+print(f"Saved {file_name}")

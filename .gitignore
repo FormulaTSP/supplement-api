@@ -208,3 +208,36 @@ __marimo__/
 
 # gcloud-creds
 gcloud-creds.json
+
+# BankID sensitive files
+bankid/certs/*
+*.p12
+*.pem
+*.crt
+*.key
+*.pfx
+*.zip
+*.base64.txt# Python
+.venv/
+venv/
+__pycache__/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts & zips
+*.zip
+app/receipts/
+app/login-debug/
+
+# Local secrets
+gcloud-creds.json
+.env
+.env.*
+supabase/.temp/
+
+# Do NOT include the separate BankID repo inside this repo
+bankid/

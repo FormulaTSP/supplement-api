@@ -2,106 +2,174 @@
 
 import os
 import json
-from openai import OpenAI
+from typing import Any, Dict, List, Tuple
 
-client = OpenAI()  # Picks up OPENAI_API_KEY from environment
+# OpenAI client (graceful fallback if key not set)
+try:
+    from openai import OpenAI
+    _openai_available = True
+except Exception:  # package missing or import error
+    _openai_available = False
+    OpenAI = None  # type: ignore
 
-
-def categorize_items_with_llm(item_list, store_name=None):
+def _get_openai_client():
     """
-    Uses GPT-4o to categorize grocery items into structured food data with
-    original name, cleaned name, category, and optional emoji.
+    Returns an OpenAI client if OPENAI_API_KEY is present and package is installed;
+    otherwise returns None so we can fail gracefully.
     """
+    if not _openai_available:
+        return None
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+    try:
+        return OpenAI()  # picks up OPENAI_API_KEY from env
+    except Exception:
+        return None
+
+_client = _get_openai_client()
+
+
+def categorize_items_with_llm(item_list: Any, store_name: str | None = None) -> List[Dict[str, Any]]:
+    """
+    Uses GPT-4o to analyze grocery items and return structured nutrition data.
+    Returns a JSON-like Python list of objects with:
+      - name (str): cleaned food name
+      - form (str): fresh, frozen, dried, cooked, etc.
+      - amount_g (float|int): estimated weight in grams
+      - category (str): broad category (Fruit, Vegetable, Dairy, Protein, Grain, etc.)
+      - nutrients_per_100g (dict): keys like vitamins/minerals/macros (best-effort)
+    """
+    if _client is None:
+        # No key or OpenAI package missing; return empty so callers can decide a fallback path.
+        return []
 
     system_message = {
         "role": "system",
         "content": (
-            "You are a nutritionist assistant. Your task is to group scanned grocery receipt items "
-            "into broad categories with clean names and optional emojis for UI display."
+            "You are a precise nutrition assistant. For each grocery item, return a clean food name, "
+            "the form (fresh, frozen, dried, cooked, etc.), the estimated amount in grams, a general category, "
+            "and a detailed list of nutrients per 100g. Use real-world data. Only include fields you are confident in."
         )
     }
 
     prompt_content = (
-        f"Receipt items:\n{item_list}\n\n"
-        "Format your response as a JSON array, each entry with keys:\n"
-        "- item: original item name from receipt\n"
-        "- clean: cleaned standardized name\n"
-        "- category: broad category (Protein, Dairy, Vegetables, Grains, Snacks, Beverages, Condiments)\n"
-        "- emoji: optional emoji\n\n"
-        "Example output:\n"
-        '[{"item": "Arla Ekologisk Mjölk", "clean": "Organic Milk", "category": "Dairy", "emoji": "🥛"}, '
-        '{"item": "Bananer", "clean": "Bananas", "category": "Fruit", "emoji": "🍌"}]'
+        f"Receipt items:\n{json.dumps(item_list)}\n\n"
+        "Return a JSON array. Each object must contain:\n"
+        "- name: cleaned food name (e.g. 'Mango')\n"
+        "- form: fresh, dried, frozen, cooked, etc.\n"
+        "- amount_g: estimated weight in grams\n"
+        "- category: broad food category (Fruit, Vegetable, Dairy, Protein, Grain, etc.)\n"
+        "- nutrients_per_100g: dictionary with as many of the following as possible:\n"
+        "    Vit A (µg), B1 (mg), B2 (mg), B3 (mg), B5 (mg), B6 (mg), B7 (µg), B9 (µg), B12 (µg),\n"
+        "    Vit C (mg), Vit D (µg), Vit E (mg), Vit K (µg), Ca (mg), Fe (mg), Se (µg), Cu (mg),\n"
+        "    Mg (mg), Zn (mg), Omega-3 (EPA/DHA), Probiotika, calories, carbs, protein, fats, fiber"
     )
 
-    if store_name:
-        prompt_content = (
-            f"The following items were extracted from a {store_name} receipt:\n{item_list}\n\n" + prompt_content
-        )
+    user_message = {"role": "user", "content": prompt_content}
 
-    user_message = {
-        "role": "user",
-        "content": prompt_content
-    }
+    response = _client.chat.completions.create(  # type: ignore[union-attr]
+        model="gpt-4o",
+        messages=[system_message, user_message],
+        temperature=0.4,
+    )
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[system_message, user_message],
-            temperature=0.3
-        )
-        content = response.choices[0].message.content
-
-        # Clean the response from markdown code blocks
-        if content.startswith("```"):
-            content = content.strip("`\n\r ")
-            if content.lower().startswith("json"):
-                content = content[4:].strip()
-
-        return json.loads(content)
-
+        parsed = json.loads(response.choices[0].message.content)  # type: ignore[index]
+        # Ensure a list is returned
+        return parsed if isinstance(parsed, list) else []
     except Exception as e:
-        print("[LLM] Failed to categorize items:", e)
-        print("[LLM] Raw response content:", content if 'content' in locals() else 'No content')
+        print("Error parsing response:", e)
+        try:
+            print("Raw response:", response.choices[0].message.content)  # type: ignore[index]
+        except Exception:
+            pass
         return []
 
 
-def estimate_nutrients(categorized_items):
+def estimate_nutrients(categorized: Any) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
-    For each categorized food, adds nutrient estimates.
-    Returns:
-    - a list of per-food nutrient data
-    - a dictionary of total nutrient intake
+    Compatibility stub so receipt_ocr.py can import and call this.
+
+    Parameters
+    ----------
+    categorized : can be:
+      - list of dicts/strings, or
+      - dict with key "items" holding that list
+
+    Returns
+    -------
+    (consumed_foods, dietary_intake)
+      consumed_foods : list[dict] with normalized items (name, quantity, unit, optional macro placeholders)
+      dietary_intake : dict with "totals" holding summed macros (zeros by default here)
+
+    Notes
+    -----
+    - This stub returns zeros by default. If the upstream categorizer already put numeric fields
+      on items (e.g., kcal, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg), you can uncomment
+      the summation block below to aggregate them.
+    - Replace this stub with your real implementation when ready.
     """
 
-    # Simplified mock nutrient database (expand as needed)
-    food_nutrient_db = {
-        "Tuna": {"Omega-3": 150, "Protein": 25},
-        "Milk": {"Calcium": 300, "Vitamin D": 100},
-        "Spinach": {"Iron": 3, "Vitamin A": 150, "Vitamin K": 400},
-        "Salmon": {"Omega-3": 180, "Protein": 27},
-        "Eggs": {"Choline": 250, "Protein": 6},
-        "Oat Milk": {"Calcium": 350, "Fiber": 2},
-        "Beef": {"Iron": 2.5, "Protein": 26},
-        "Apple": {"Fiber": 4, "Vitamin C": 8}
+    # Normalize to a list of items
+    if isinstance(categorized, dict) and "items" in categorized:
+        items = categorized.get("items") or []
+    else:
+        items = categorized or []
+
+    consumed: List[Dict[str, Any]] = []
+
+    totals: Dict[str, float] = {
+        "kcal": 0.0,
+        "protein_g": 0.0,
+        "carbs_g": 0.0,
+        "fat_g": 0.0,
+        "fiber_g": 0.0,
+        "sugar_g": 0.0,
+        "sodium_mg": 0.0,
     }
 
-    detailed = []
-    totals = {}
+    for it in items:
+        if isinstance(it, dict):
+            name = it.get("name") or it.get("item") or str(it)
+            qty = it.get("quantity") or 1
+            unit = it.get("unit") or "item"
+            kcal = float(it.get("kcal", 0) or 0)
+            protein_g = float(it.get("protein_g", 0) or 0)
+            carbs_g = float(it.get("carbs_g", 0) or 0)
+            fat_g = float(it.get("fat_g", 0) or 0)
+            fiber_g = float(it.get("fiber_g", 0) or 0)
+            sugar_g = float(it.get("sugar_g", 0) or 0)
+            sodium_mg = float(it.get("sodium_mg", 0) or 0)
+        else:
+            name = str(it)
+            qty = 1
+            unit = "item"
+            kcal = protein_g = carbs_g = fat_g = fiber_g = sugar_g = sodium_mg = 0.0
 
-    for item in categorized_items:
-        name = item.get("clean") or item.get("item")
-        category = item.get("category", "Other")
+        consumed.append(
+            {
+                "name": name,
+                "quantity": qty,
+                "unit": unit,
+                "kcal": kcal,
+                "protein_g": protein_g,
+                "carbs_g": carbs_g,
+                "fat_g": fat_g,
+                "fiber_g": fiber_g,
+                "sugar_g": sugar_g,
+                "sodium_mg": sodium_mg,
+            }
+        )
 
-        nutrients = food_nutrient_db.get(name, {})
+        # If you want to sum any provided values right now, uncomment:
+        # totals["kcal"]      += kcal
+        # totals["protein_g"] += protein_g
+        # totals["carbs_g"]   += carbs_g
+        # totals["fat_g"]     += fat_g
+        # totals["fiber_g"]   += fiber_g
+        # totals["sugar_g"]   += sugar_g
+        # totals["sodium_mg"] += sodium_mg
 
-        # Add to nutrient totals
-        for nutrient, value in nutrients.items():
-            totals[nutrient] = totals.get(nutrient, 0) + value
-
-        detailed.append({
-            "name": name,
-            "category": category,
-            "nutrients": nutrients
-        })
-
-    return detailed, totals
+    dietary_intake: Dict[str, Any] = {"totals": totals}
+    return consumed, dietary_intake
