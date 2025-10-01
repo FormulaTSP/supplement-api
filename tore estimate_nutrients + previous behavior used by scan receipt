@@ -1,0 +1,184 @@
+[1mdiff --git a/app/nutrition_utils.py b/app/nutrition_utils.py[m
+[1mindex 338c529..6c0ac6b 100644[m
+[1m--- a/app/nutrition_utils.py[m
+[1m+++ b/app/nutrition_utils.py[m
+[36m@@ -2,47 +2,20 @@[m
+ [m
+ import os[m
+ import json[m
+[31m-from typing import Any, Dict, List, Tuple[m
+[32m+[m[32mfrom openai import OpenAI[m
+ [m
+[31m-# OpenAI client (graceful fallback if key not set)[m
+[31m-try:[m
+[31m-    from openai import OpenAI[m
+[31m-    _openai_available = True[m
+[31m-except Exception:  # package missing or import error[m
+[31m-    _openai_available = False[m
+[31m-    OpenAI = None  # type: ignore[m
+[32m+[m[32mclient = OpenAI()  # Picks up OPENAI_API_KEY from environment[m
+ [m
+[31m-def _get_openai_client():[m
+[31m-    """[m
+[31m-    Returns an OpenAI client if OPENAI_API_KEY is present and package is installed;[m
+[31m-    otherwise returns None so we can fail gracefully.[m
+[31m-    """[m
+[31m-    if not _openai_available:[m
+[31m-        return None[m
+[31m-    api_key = os.getenv("OPENAI_API_KEY")[m
+[31m-    if not api_key:[m
+[31m-        return None[m
+[31m-    try:[m
+[31m-        return OpenAI()  # picks up OPENAI_API_KEY from env[m
+[31m-    except Exception:[m
+[31m-        return None[m
+ [m
+[31m-_client = _get_openai_client()[m
+[31m-[m
+[31m-[m
+[31m-def categorize_items_with_llm(item_list: Any, store_name: str | None = None) -> List[Dict[str, Any]]:[m
+[32m+[m[32mdef categorize_items_with_llm(item_list, store_name=None):[m
+     """[m
+[31m-    Uses GPT-4o to analyze grocery items and return structured nutrition data.[m
+[31m-    Returns a JSON-like Python list of objects with:[m
+[31m-      - name (str): cleaned food name[m
+[31m-      - form (str): fresh, frozen, dried, cooked, etc.[m
+[31m-      - amount_g (float|int): estimated weight in grams[m
+[31m-      - category (str): broad category (Fruit, Vegetable, Dairy, Protein, Grain, etc.)[m
+[31m-      - nutrients_per_100g (dict): keys like vitamins/minerals/macros (best-effort)[m
+[32m+[m[32m    Uses GPT-4o to analyze grocery items and return structured nutrition data:[m
+[32m+[m[32m    - Clean name[m
+[32m+[m[32m    - Form (fresh/frozen/dried/etc.)[m
+[32m+[m[32m    - Estimated amount (g)[m
+[32m+[m[32m    - Category[m
+[32m+[m[32m    - Nutrients per 100g (complete list)[m
+     """[m
+[31m-    if _client is None:[m
+[31m-        # No key or OpenAI package missing; return empty so callers can decide a fallback path.[m
+[31m-        return [][m
+ [m
+     system_message = {[m
+         "role": "system",[m
+[36m@@ -66,110 +39,21 @@[m [mdef categorize_items_with_llm(item_list: Any, store_name: str | None = None) ->[m
+         "    Mg (mg), Zn (mg), Omega-3 (EPA/DHA), Probiotika, calories, carbs, protein, fats, fiber"[m
+     )[m
+ [m
+[31m-    user_message = {"role": "user", "content": prompt_content}[m
+[32m+[m[32m    user_message = {[m
+[32m+[m[32m        "role": "user",[m
+[32m+[m[32m        "content": prompt_content[m
+[32m+[m[32m    }[m
+ [m
+[31m-    response = _client.chat.completions.create(  # type: ignore[union-attr][m
+[32m+[m[32m    response = client.chat.completions.create([m
+         model="gpt-4o",[m
+         messages=[system_message, user_message],[m
+[31m-        temperature=0.4,[m
+[32m+[m[32m        temperature=0.4[m
+     )[m
+ [m
+     try:[m
+[31m-        parsed = json.loads(response.choices[0].message.content)  # type: ignore[index][m
+[31m-        # Ensure a list is returned[m
+[31m-        return parsed if isinstance(parsed, list) else [][m
+[32m+[m[32m        parsed = json.loads(response.choices[0].message.content)[m
+[32m+[m[32m        return parsed[m
+     except Exception as e:[m
+         print("Error parsing response:", e)[m
+[31m-        try:[m
+[31m-            print("Raw response:", response.choices[0].message.content)  # type: ignore[index][m
+[31m-        except Exception:[m
+[31m-            pass[m
+[31m-        return [][m
+[31m-[m
+[31m-[m
+[31m-def estimate_nutrients(categorized: Any) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:[m
+[31m-    """[m
+[31m-    Compatibility stub so receipt_ocr.py can import and call this.[m
+[31m-[m
+[31m-    Parameters[m
+[31m-    ----------[m
+[31m-    categorized : can be:[m
+[31m-      - list of dicts/strings, or[m
+[31m-      - dict with key "items" holding that list[m
+[31m-[m
+[31m-    Returns[m
+[31m-    -------[m
+[31m-    (consumed_foods, dietary_intake)[m
+[31m-      consumed_foods : list[dict] with normalized items (name, quantity, unit, optional macro placeholders)[m
+[31m-      dietary_intake : dict with "totals" holding summed macros (zeros by default here)[m
+[31m-[m
+[31m-    Notes[m
+[31m-    -----[m
+[31m-    - This stub returns zeros by default. If the upstream categorizer already put numeric fields[m
+[31m-      on items (e.g., kcal, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg), you can uncomment[m
+[31m-      the summation block below to aggregate them.[m
+[31m-    - Replace this stub with your real implementation when ready.[m
+[31m-    """[m
+[31m-[m
+[31m-    # Normalize to a list of items[m
+[31m-    if isinstance(categorized, dict) and "items" in categorized:[m
+[31m-        items = categorized.get("items") or [][m
+[31m-    else:[m
+[31m-        items = categorized or [][m
+[31m-[m
+[31m-    consumed: List[Dict[str, Any]] = [][m
+[31m-[m
+[31m-    totals: Dict[str, float] = {[m
+[31m-        "kcal": 0.0,[m
+[31m-        "protein_g": 0.0,[m
+[31m-        "carbs_g": 0.0,[m
+[31m-        "fat_g": 0.0,[m
+[31m-        "fiber_g": 0.0,[m
+[31m-        "sugar_g": 0.0,[m
+[31m-        "sodium_mg": 0.0,[m
+[31m-    }[m
+[31m-[m
+[31m-    for it in items:[m
+[31m-        if isinstance(it, dict):[m
+[31m-            name = it.get("name") or it.get("item") or str(it)[m
+[31m-            qty = it.get("quantity") or 1[m
+[31m-            unit = it.get("unit") or "item"[m
+[31m-            kcal = float(it.get("kcal", 0) or 0)[m
+[31m-            protein_g = float(it.get("protein_g", 0) or 0)[m
+[31m-            carbs_g = float(it.get("carbs_g", 0) or 0)[m
+[31m-            fat_g = float(it.get("fat_g", 0) or 0)[m
+[31m-            fiber_g = float(it.get("fiber_g", 0) or 0)[m
+[31m-            sugar_g = float(it.get("sugar_g", 0) or 0)[m
+[31m-            sodium_mg = float(it.get("sodium_mg", 0) or 0)[m
+[31m-        else:[m
+[31m-            name = str(it)[m
+[31m-            qty = 1[m
+[31m-            unit = "item"[m
+[31m-            kcal = protein_g = carbs_g = fat_g = fiber_g = sugar_g = sodium_mg = 0.0[m
+[31m-[m
+[31m-        consumed.append([m
+[31m-            {[m
+[31m-                "name": name,[m
+[31m-                "quantity": qty,[m
+[31m-                "unit": unit,[m
+[31m-                "kcal": kcal,[m
+[31m-                "protein_g": protein_g,[m
+[31m-                "carbs_g": carbs_g,[m
+[31m-                "fat_g": fat_g,[m
+[31m-                "fiber_g": fiber_g,[m
+[31m-                "sugar_g": sugar_g,[m
+[31m-                "sodium_mg": sodium_mg,[m
+[31m-            }[m
+[31m-        )[m
+[31m-[m
+[31m-        # If you want to sum any provided values right now, uncomment:[m
+[31m-        # totals["kcal"]      += kcal[m
+[31m-        # totals["protein_g"] += protein_g[m
+[31m-        # totals["carbs_g"]   += carbs_g[m
+[31m-        # totals["fat_g"]     += fat_g[m
+[31m-        # totals["fiber_g"]   += fiber_g[m
+[31m-        # totals["sugar_g"]   += sugar_g[m
+[31m-        # totals["sodium_mg"] += sodium_mg[m
+[31m-[m
+[31m-    dietary_intake: Dict[str, Any] = {"totals": totals}[m
+[31m-    return consumed, dietary_intake[m
+\ No newline at end of file[m
+[32m+[m[32m        print("Raw response:", response.choices[0].message.content)[m
+[32m+[m[32m        return [][m
+\ No newline at end of file[m

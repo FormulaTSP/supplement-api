@@ -15,10 +15,7 @@ from app.data_model import (
     UserFeedback,
     RecommendationOutput
 )
-from app.supplement_engine import generate_supplement_plan
-from app.cluster_engine import ClusterEngine
-from app.user_update_pipeline import add_user_and_recluster
-from app.drug_interaction_checker import attach_interaction_flags
+from app.supplement_engine import generate_supplement_plan, PlanningError
 import uuid
 import logging
 
@@ -41,10 +38,6 @@ def root():
 
 # Setup logger
 logger = logging.getLogger("uvicorn.error")
-
-# Shared cluster engine instance
-cluster_engine = ClusterEngine(n_clusters=3)
-cluster_engine.fitted = False
 
 # -----------------------------
 # Pydantic models for API input
@@ -117,32 +110,19 @@ def recommend(user_input: UserInput):
             feedback=feedback,
         )
 
-        # Recluster and generate recommendations
-        updated_user, updated_cluster_engine = add_user_and_recluster(user)
-
-        # Update global cluster engine instance for subsequent requests
-        global cluster_engine
-        cluster_engine = updated_cluster_engine
-
-        # Get recommendation output directly from supplement engine
-        recommendations = generate_supplement_plan(updated_user, cluster_engine=updated_cluster_engine)
-
-        # Attach drug interaction warnings
-        flagged_recs = attach_interaction_flags(updated_user, recommendations.recommendations)
-        recommendations.recommendations = flagged_recs
-
+        # Directly plan with the LLM-based engine (no clustering/rule-based pipeline)
+        recommendations = generate_supplement_plan(user)
         return recommendations
 
+    except PlanningError as e:
+        # LLM failed — surface a clear error to clients
+        logger.error(f"LLM planning error: {e}")
+        raise HTTPException(status_code=502, detail="Supplement planning temporarily unavailable. Please try again later.")
     except Exception as e:
         logger.error(f"Error in /recommend endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error. Please check your input and try again.")
-    
-from app.receipt_ocr import router as receipt_router
-app.include_router(receipt_router)
 
-from app.grocery_router import router as grocery_router
-app.include_router(grocery_router)
-
+# Routers
 from app.receipt_ocr import router as receipt_router
 app.include_router(receipt_router)
 
