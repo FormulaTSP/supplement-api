@@ -34,15 +34,26 @@ def generate_supplement_plan(
       - cluster_id = None
     """
     try:
-        data = plan_with_llm(
-            user=user,
-            max_supps=6,
-            max_groceries=10,
-            max_recipes=3,
-            temperature=0.2,
-            grocery_context=grocery_context,
-            grocery_nutrients=grocery_nutrients,
-        )
+        # Try new planner signature first (with grocery context)
+        try:
+            data = plan_with_llm(
+                user=user,
+                max_supps=6,
+                max_groceries=10,
+                max_recipes=3,
+                temperature=0.2,
+                grocery_context=grocery_context,
+                grocery_nutrients=grocery_nutrients,
+            )
+        except TypeError:
+            # Deployed planner might be older; retry without the new kwargs
+            data = plan_with_llm(
+                user=user,
+                max_supps=6,
+                max_groceries=10,
+                max_recipes=3,
+                temperature=0.2,
+            )
     except Exception as e:
         raise PlanningError(f"LLM planning failed: {e}")
 
