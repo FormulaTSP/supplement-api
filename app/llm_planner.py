@@ -4,13 +4,10 @@ from typing import List, Dict, Any, Optional
 import os, json, re, logging
 
 from openai import OpenAI
-
 from app.data_model import UserProfile
 from app.unit_converter import normalize_blood_test_marker
 
-# Logger setup
 logger = logging.getLogger("uvicorn.error")
-
 
 def _strip_code_fence(text: str) -> str:
     if not isinstance(text, str):
@@ -20,7 +17,6 @@ def _strip_code_fence(text: str) -> str:
         t = re.sub(r"^```(?:json)?\n?", "", t)
         t = re.sub(r"\n```$", "", t)
     return t
-
 
 def _coerce_json(text: str) -> Dict[str, Any]:
     t = _strip_code_fence(text)
@@ -32,9 +28,7 @@ def _coerce_json(text: str) -> Dict[str, Any]:
             return json.loads(m.group(0))
         raise
 
-
 def _compact_user(user: UserProfile) -> Dict[str, Any]:
-    """Compact user profile for the LLM; include helpful signal but no backend-imposed rules."""
     blood_tests = []
     for bt in (user.blood_tests or []):
         try:
@@ -76,10 +70,30 @@ def _compact_user(user: UserProfile) -> Dict[str, Any]:
         },
     }
 
-
-def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_recipes: int) -> List[Dict[str, str]]:
-    """Single-call, fully LLM-driven plan (supplements + groceries + recipes + timeframe)."""
+def _build_messages(
+    user: UserProfile,
+    max_supps: int,
+    max_groceries: int,
+    max_recipes: int,
+    grocery_context: Optional[List[Dict[str, Any]]] = None,
+    grocery_nutrients: Optional[Dict[str, float]] = None,
+) -> List[Dict[str, str]]:
     user_payload = _compact_user(user)
+
+    # Keep grocery payload compact; include any metrics if present
+    groceries_brief: List[Dict[str, Any]] = []
+    for it in (grocery_context or []):
+        groceries_brief.append({
+            "name": it.get("name"),
+            "category": it.get("category"),
+            "quantity": it.get("quantity"),
+            "unit": it.get("unit"),
+            "package_count": it.get("package_count"),
+            "package_size_value": it.get("package_size_value"),
+            "package_size_unit": it.get("package_size_unit"),
+            "inferred_total_grams": it.get("inferred_total_grams"),
+            "inferred_total_ml": it.get("inferred_total_ml"),
+        })
 
     system = (
         "You are a clinical-grade nutrition & supplement planning assistant. "
@@ -142,6 +156,12 @@ def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_r
         "required": ["recommendations", "grocery_recommendations", "recipes", "rebalance_timeframe"]
     }
 
+    grocery_hint = {
+        "recent_groceries": groceries_brief[:200],
+        "recent_grocery_count": len(groceries_brief),
+        "grocery_nutrient_totals": grocery_nutrients or {},
+    }
+
     user_msg = {
         "role": "user",
         "content": (
@@ -150,12 +170,20 @@ def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_r
             "Supplements and foods should be aligned with the user's needs and goals. "
             "Recipes should largely use the grocery items you recommend.\n\n"
             f"schema: {json.dumps(schema_hint)}\n\n"
-            f"user: {json.dumps(user_payload)}\n"
+            f"user: {json.dumps(user_payload)}\n\n"
+            f"context: {json.dumps(grocery_hint)}\n"
         ),
     }
 
-    return [{"role": "system", "content": system}, user_msg]
+    messages = [{"role": "system", "content": system}, user_msg]
+    # Optional debug to verify context presence
+    try:
+        logger.info("🧠 [LLM PLANNER] --- Prompt sent to model ---")
+        logger.info(json.dumps(messages, indent=2))
+    except Exception:
+        pass
 
+    return messages
 
 def plan_with_llm(
     user: UserProfile,
@@ -164,25 +192,24 @@ def plan_with_llm(
     max_groceries: int = 10,
     max_recipes: int = 3,
     temperature: float = 0.2,
+    grocery_context: Optional[List[Dict[str, Any]]] = None,
+    grocery_nutrients: Optional[Dict[str, float]] = None,
+    **kwargs,
 ) -> Dict[str, Any]:
     """
-    PURE LLM planner in one call:
-      - Supplements (recommendations)
-      - Grocery items (grocery_recommendations)
-      - Recipes (recipes)
-      - Rebalance timeframe (rebalance_timeframe: string)
-    Logs the prompt and raw response to Render logs.
+    PURE LLM planner in one call (supplements + groceries + recipes + timeframe),
+    with optional grocery context included in the prompt.
     """
     model = model or os.getenv("LLM_PLANNER_MODEL", "gpt-4o-mini")
     client = OpenAI()
-    messages = _build_messages(user, max_supps, max_groceries, max_recipes)
-
-    # Log what the LLM will see
-    try:
-        logger.info("🧠 [LLM PLANNER] --- Prompt sent to model ---")
-        logger.info(json.dumps(messages, indent=2))
-    except Exception:
-        logger.warning("Failed to log LLM prompt structure")
+    messages = _build_messages(
+        user=user,
+        max_supps=max_supps,
+        max_groceries=max_groceries,
+        max_recipes=max_recipes,
+        grocery_context=grocery_context,
+        grocery_nutrients=grocery_nutrients,
+    )
 
     resp = client.chat.completions.create(
         model=model,
@@ -190,31 +217,29 @@ def plan_with_llm(
         temperature=temperature,
         max_tokens=1800,
     )
-
     content = resp.choices[0].message.content or "{}"
 
-    # Log raw response text
-    logger.info("🧩 [LLM PLANNER] --- Raw LLM response ---")
-    logger.info(content)
+    try:
+        logger.info("🧩 [LLM PLANNER] --- Raw LLM response ---")
+        logger.info(content)
+    except Exception:
+        pass
 
     data = _coerce_json(content)
-
-    # Ensure keys exist
     data.setdefault("recommendations", [])
     data.setdefault("grocery_recommendations", [])
     data.setdefault("recipes", [])
     data.setdefault("rebalance_timeframe", "")
 
-    # Log structured JSON summary
     try:
         logger.info("✅ [LLM PLANNER] --- Parsed LLM output summary ---")
         logger.info(json.dumps({
             "num_supplements": len(data["recommendations"]),
             "num_groceries": len(data["grocery_recommendations"]),
             "num_recipes": len(data["recipes"]),
-            "rebalance_timeframe": data.get("rebalance_timeframe", "")
+            "rebalance_timeframe": data["rebalance_timeframe"],
         }, indent=2))
     except Exception:
-        logger.warning("Failed to log parsed LLM output summary")
+        pass
 
     return data
