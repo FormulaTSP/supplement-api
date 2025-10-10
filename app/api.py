@@ -53,6 +53,14 @@ class FeedbackInput(BaseModel):
 class ProcessedItem(BaseModel):
     name: str
     category: Optional[str] = None
+    # Optional metrics if your FE/receipt pipeline adds them:
+    quantity: Optional[float] = None
+    unit: Optional[str] = None
+    package_count: Optional[float] = None
+    package_size_value: Optional[float] = None
+    package_size_unit: Optional[str] = None
+    inferred_total_grams: Optional[float] = None
+    inferred_total_ml: Optional[float] = None
 
 
 class MemberProfile(BaseModel):
@@ -93,7 +101,7 @@ class FrontendUserInput(BaseModel):
 # -----------------------------
 # POST /recommend endpoint
 # -----------------------------
-@app.post("/recommend", response_model=dict)  # <- allow extended fields without editing data_model.py
+@app.post("/recommend", response_model=dict)  # allow extended fields
 def recommend(user_input: FrontendUserInput):
     try:
         # --- Normalize gender flexibly ---
@@ -124,7 +132,7 @@ def recommend(user_input: FrontendUserInput):
             else:
                 conditions.append(item)
 
-        # --- Future use: optional extended data ---
+        # Optional extended inputs from FE
         household_data = user_input.household.dict() if user_input.household else {}
         grocery_data = [item.dict() for item in user_input.processed_grocery_data or []]
         blood_data = [item.dict() for item in user_input.processed_blood_data or []]
@@ -143,13 +151,17 @@ def recommend(user_input: FrontendUserInput):
             medical_history={},
             medications=medications,
             goals=user_input.health_priorities or [],
-            blood_tests=[],  # you can later map blood_data here
+            blood_tests=[],  # map blood_data into BloodTestResult later if/when needed
             wearable_data=None,
             feedback=None,
         )
 
-        # Generate full plan via LLM planner (supps + groceries + recipes + timeframe)
-        out = generate_supplement_plan(user)
+        # Generate full plan via LLM planner, passing grocery context
+        out = generate_supplement_plan(
+            user,
+            grocery_context=grocery_data,
+            grocery_nutrients=None,  # optional: compute and pass if you later add nutrition totals
+        )
         return out
 
     except PlanningError as e:

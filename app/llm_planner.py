@@ -74,12 +74,35 @@ def _compact_user(user: UserProfile) -> Dict[str, Any]:
     }
 
 
-def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_recipes: int) -> List[Dict[str, str]]:
+def _build_messages(
+    user: UserProfile,
+    max_supps: int,
+    max_groceries: int,
+    max_recipes: int,
+    grocery_context: Optional[List[Dict[str, Any]]] = None,
+    grocery_nutrients: Optional[Dict[str, float]] = None,
+) -> List[Dict[str, str]]:
     """
     Single-call, fully LLM-driven plan (supplements + groceries + recipes + timeframe).
-    No catalogs, no caps, no backend guardrails. Output STRICT JSON.
+    We include recent grocery context (from frontend) so the model can align foods/recipes with reality.
     """
     user_payload = _compact_user(user)
+
+    # Keep the grocery payload compact
+    groceries_brief: List[Dict[str, Any]] = []
+    for it in (grocery_context or []):
+        groceries_brief.append({
+            "name": it.get("name"),
+            "category": it.get("category"),
+            # If your frontend sends quantities/metrics later, they’ll pass through:
+            "quantity": it.get("quantity"),
+            "unit": it.get("unit"),
+            "package_count": it.get("package_count"),
+            "package_size_value": it.get("package_size_value"),
+            "package_size_unit": it.get("package_size_unit"),
+            "inferred_total_grams": it.get("inferred_total_grams"),
+            "inferred_total_ml": it.get("inferred_total_ml"),
+        })
 
     system = (
         "You are a clinical-grade nutrition & supplement planning assistant. "
@@ -142,15 +165,22 @@ def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_r
         "required": ["recommendations", "grocery_recommendations", "recipes", "rebalance_timeframe"]
     }
 
+    grocery_hint = {
+        "recent_groceries": groceries_brief[:200],  # trim to avoid large payloads
+        "recent_grocery_count": len(groceries_brief),
+        "grocery_nutrient_totals": grocery_nutrients or {},  # optional
+    }
+
     user_msg = {
         "role": "user",
         "content": (
             "Return ONLY a JSON object matching this schema. No prose. No code fences.\n"
             f"Max supplements: {max_supps}. Max groceries: {max_groceries}. Max recipes: {max_recipes}.\n"
-            "Supplements and foods should be aligned with the user's needs and goals. "
-            "Recipes should largely use the grocery items you recommend.\n\n"
+            "Align grocery and recipe suggestions with the user's ACTUAL grocery patterns when helpful. "
+            "Recipes should largely build on recommended groceries.\n\n"
             f"schema: {json.dumps(schema_hint)}\n\n"
-            f"user: {json.dumps(user_payload)}\n"
+            f"user: {json.dumps(user_payload)}\n\n"
+            f"context: {json.dumps(grocery_hint)}\n"
         ),
     }
 
@@ -164,6 +194,8 @@ def plan_with_llm(
     max_groceries: int = 10,
     max_recipes: int = 3,
     temperature: float = 0.2,
+    grocery_context: Optional[List[Dict[str, Any]]] = None,
+    grocery_nutrients: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
     """
     PURE LLM planner in one call:
@@ -171,11 +203,19 @@ def plan_with_llm(
       - Grocery items (grocery_recommendations)
       - Recipes (recipes)
       - Rebalance timeframe (rebalance_timeframe: string)
+    Includes recent grocery context from the frontend.
     Returns the raw parsed dict. No server-side guardrails.
     """
     model = model or os.getenv("LLM_PLANNER_MODEL", "gpt-4o-mini")
     client = OpenAI()
-    messages = _build_messages(user, max_supps, max_groceries, max_recipes)
+    messages = _build_messages(
+        user=user,
+        max_supps=max_supps,
+        max_groceries=max_groceries,
+        max_recipes=max_recipes,
+        grocery_context=grocery_context,
+        grocery_nutrients=grocery_nutrients,
+    )
 
     resp = client.chat.completions.create(
         model=model,

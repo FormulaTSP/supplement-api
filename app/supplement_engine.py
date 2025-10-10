@@ -1,6 +1,6 @@
 # app/supplement_engine.py
 from __future__ import annotations
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.data_model import UserProfile
 from app.llm_planner import plan_with_llm
@@ -17,7 +17,11 @@ def _coerce_float(x) -> float:
         return 0.0
 
 
-def generate_supplement_plan(user: UserProfile) -> Dict[str, Any]:
+def generate_supplement_plan(
+    user: UserProfile,
+    grocery_context: Optional[List[Dict[str, Any]]] = None,
+    grocery_nutrients: Optional[Dict[str, float]] = None,
+) -> Dict[str, Any]:
     """
     Single entry point called by the API. Fully LLM-driven.
     Returns a dict with:
@@ -36,6 +40,8 @@ def generate_supplement_plan(user: UserProfile) -> Dict[str, Any]:
             max_groceries=10,
             max_recipes=3,
             temperature=0.2,
+            grocery_context=grocery_context,
+            grocery_nutrients=grocery_nutrients,
         )
     except Exception as e:
         raise PlanningError(f"LLM planning failed: {e}")
