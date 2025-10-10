@@ -132,7 +132,12 @@ def _build_messages(
                     "type": "object",
                     "properties": {
                         "name": {"type": "string"},
-                        "reason": {"type": "string"}
+                        "reason": {"type": "string"},
+                        "nutrient_tags": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "1-3 key nutrients this food supports, e.g. ['Omega-3','Iron']"
+                        }
                     },
                     "required": ["name"]
                 }
@@ -167,7 +172,9 @@ def _build_messages(
         "content": (
             "Return ONLY a JSON object matching this schema. No prose. No code fences.\n"
             f"Max supplements: {max_supps}. Max groceries: {max_groceries}. Max recipes: {max_recipes}.\n"
-            "Supplements and foods should be aligned with the user's needs and goals. "
+            "Supplements and foods should align with the user's needs and goals. "
+            "For each grocery recommendation, include 1–3 'nutrient_tags' that best describe its key nutrients "
+            "(e.g., 'Omega-3', 'Iron', 'Calcium', 'Magnesium', 'Vitamin D', 'Fiber', 'Potassium'). "
             "Recipes should largely use the grocery items you recommend.\n\n"
             f"schema: {json.dumps(schema_hint)}\n\n"
             f"user: {json.dumps(user_payload)}\n\n"
@@ -176,13 +183,11 @@ def _build_messages(
     }
 
     messages = [{"role": "system", "content": system}, user_msg]
-    # Optional debug to verify context presence
     try:
         logger.info("🧠 [LLM PLANNER] --- Prompt sent to model ---")
         logger.info(json.dumps(messages, indent=2))
     except Exception:
         pass
-
     return messages
 
 def plan_with_llm(
