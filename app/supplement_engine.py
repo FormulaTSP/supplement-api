@@ -23,7 +23,7 @@ def generate_supplement_plan(
     """
     try:
         # LLM is now the sole planning engine; no cluster hints are used
-        recommendations: List[SupplementRecommendation] = plan_with_llm(user, cluster_hints=None)
+        recommendations: List[SupplementRecommendation] = plan_with_llm(user)
     except Exception as e:
         # Surface a clear error so API can respond appropriately
         raise PlanningError(f"LLM planning failed: {e}")
