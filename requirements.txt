@@ -13,3 +13,4 @@ supabase
 pdf2image
 openpyxl
 tiktoken
+pdfminer.six>=20221105
