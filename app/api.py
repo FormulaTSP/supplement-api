@@ -15,7 +15,7 @@ from app.data_model import (
     WearableMetrics,
     BloodTestResult,
     UserFeedback,
-    RecommendationOutput,
+    RecommendationOutput,  # kept import; not used as response_model anymore
 )
 from app.supplement_engine import generate_supplement_plan, PlanningError
 
@@ -93,7 +93,7 @@ class FrontendUserInput(BaseModel):
 # -----------------------------
 # POST /recommend endpoint
 # -----------------------------
-@app.post("/recommend", response_model=RecommendationOutput)
+@app.post("/recommend", response_model=dict)  # <- allow extended fields without editing data_model.py
 def recommend(user_input: FrontendUserInput):
     try:
         # --- Normalize gender flexibly ---
@@ -148,9 +148,9 @@ def recommend(user_input: FrontendUserInput):
             feedback=None,
         )
 
-        # Generate plan via LLM planner
-        recommendations = generate_supplement_plan(user)
-        return recommendations
+        # Generate full plan via LLM planner (supps + groceries + recipes + timeframe)
+        out = generate_supplement_plan(user)
+        return out
 
     except PlanningError as e:
         logger.error(f"LLM planning error: {e}")

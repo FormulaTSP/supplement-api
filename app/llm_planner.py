@@ -5,7 +5,7 @@ import os, json, re
 
 from openai import OpenAI
 
-from app.data_model import UserProfile, SupplementRecommendation
+from app.data_model import UserProfile
 from app.unit_converter import normalize_blood_test_marker
 
 
@@ -74,22 +74,29 @@ def _compact_user(user: UserProfile) -> Dict[str, Any]:
     }
 
 
-def _build_messages(user: UserProfile, max_recs: int) -> List[Dict[str, str]]:
-    """No catalog provided. The LLM is fully authoritative."""
+def _build_messages(user: UserProfile, max_supps: int, max_groceries: int, max_recipes: int) -> List[Dict[str, str]]:
+    """
+    Single-call, fully LLM-driven plan (supplements + groceries + recipes + timeframe).
+    No catalogs, no caps, no backend guardrails. Output STRICT JSON.
+    """
     user_payload = _compact_user(user)
 
     system = (
-        "You are a clinical supplement planning assistant. "
-        "Create a concise, personalized supplement plan for the user based on their profile. "
-        "You are fully responsible for choosing items and dosages. "
-        "Output STRICT JSON only (no prose, no code fences)."
+        "You are a clinical-grade nutrition & supplement planning assistant. "
+        "Create a concise, personalized plan consisting of: "
+        "(1) supplements, (2) grocery items (specific foods), (3) recipes (ingredients + steps), and (4) a single-string timeframe "
+        "for how long it may take to restore nutritional balance. "
+        "You are fully responsible for item choices and dosages. "
+        "Return STRICT JSON only (no prose, no code fences)."
     )
 
     schema_hint = {
         "type": "object",
         "properties": {
+            "rebalance_timeframe": {"type": "string"},
             "recommendations": {
                 "type": "array",
+                "description": "Supplements",
                 "items": {
                     "type": "object",
                     "properties": {
@@ -97,26 +104,51 @@ def _build_messages(user: UserProfile, max_recs: int) -> List[Dict[str, str]]:
                         "dosage": {"type": "number"},
                         "unit": {"type": "string"},
                         "reason": {"type": "string"},
-                        # optional, if the model wants to include them:
                         "triggered_by": {"type": "array", "items": {"type": "string"}},
                         "contraindications": {"type": "array", "items": {"type": "string"}},
-                        "inputs_triggered": {"type": "array", "items": {"type": "string"}},
-                        "notes": {"type": "array", "items": {"type": "string"}},
-                        "warnings": {"type": "array", "items": {"type": "string"}},
+                        "inputs_triggered": {"type": "array", "items": {"type": "string"}}
                     },
-                    "required": ["name", "dosage", "unit", "reason"],
-                },
+                    "required": ["name", "dosage", "unit", "reason"]
+                }
+            },
+            "grocery_recommendations": {
+                "type": "array",
+                "description": "Specific foods to buy and eat more often",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "reason": {"type": "string"}
+                    },
+                    "required": ["name"]
+                }
+            },
+            "recipes": {
+                "type": "array",
+                "description": "Recipes that use the recommended foods",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "ingredients": {"type": "array", "items": {"type": "string"}},
+                        "instructions": {"type": "array", "items": {"type": "string"}},
+                        "nutritional_focus": {"type": "array", "items": {"type": "string"}},
+                        "estimated_time_minutes": {"type": "number"}
+                    },
+                    "required": ["title", "ingredients", "instructions"]
+                }
             }
         },
-        "required": ["recommendations"],
+        "required": ["recommendations", "grocery_recommendations", "recipes", "rebalance_timeframe"]
     }
 
     user_msg = {
         "role": "user",
         "content": (
             "Return ONLY a JSON object matching this schema. No prose. No code fences.\n"
-            f"Max items: {max_recs}.\n"
-            "If you consider risks/contraindications/medication interactions relevant, include them in your own fields.\n\n"
+            f"Max supplements: {max_supps}. Max groceries: {max_groceries}. Max recipes: {max_recipes}.\n"
+            "Supplements and foods should be aligned with the user's needs and goals. "
+            "Recipes should largely use the grocery items you recommend.\n\n"
             f"schema: {json.dumps(schema_hint)}\n\n"
             f"user: {json.dumps(user_payload)}\n"
         ),
@@ -128,60 +160,36 @@ def _build_messages(user: UserProfile, max_recs: int) -> List[Dict[str, str]]:
 def plan_with_llm(
     user: UserProfile,
     model: Optional[str] = None,
-    max_recs: int = 8,
+    max_supps: int = 6,
+    max_groceries: int = 10,
+    max_recipes: int = 3,
     temperature: float = 0.2,
-) -> List[SupplementRecommendation]:
+) -> Dict[str, Any]:
     """
-    PURE LLM planner:
-      - No catalog, no backend constraints.
-      - The model decides names, dosages, units, reasons, and any metadata fields.
-      - We only coerce the model's JSON into SupplementRecommendation objects.
+    PURE LLM planner in one call:
+      - Supplements (recommendations)
+      - Grocery items (grocery_recommendations)
+      - Recipes (recipes)
+      - Rebalance timeframe (rebalance_timeframe: string)
+    Returns the raw parsed dict. No server-side guardrails.
     """
     model = model or os.getenv("LLM_PLANNER_MODEL", "gpt-4o-mini")
     client = OpenAI()
-    messages = _build_messages(user, max_recs)
+    messages = _build_messages(user, max_supps, max_groceries, max_recipes)
 
     resp = client.chat.completions.create(
         model=model,
         messages=messages,
         temperature=temperature,
-        max_tokens=1500,
+        max_tokens=1800,
     )
     content = resp.choices[0].message.content or "{}"
     data = _coerce_json(content)
 
-    out: List[SupplementRecommendation] = []
-    for item in (data.get("recommendations") or []):
-        # Pull fields directly from the model output; be permissive.
-        name = str(item.get("name", "")).strip()
-        if not name:
-            continue
+    # Ensure keys exist to keep the rest of the pipeline simple
+    data.setdefault("recommendations", [])
+    data.setdefault("grocery_recommendations", [])
+    data.setdefault("recipes", [])
+    data.setdefault("rebalance_timeframe", "")
 
-        # dosage is free-form from the model
-        try:
-            dosage = float(item.get("dosage", 0))
-        except Exception:
-            dosage = 0.0
-
-        unit = str(item.get("unit", "")).strip()
-        reason = (str(item.get("reason") or "").strip()) or None
-
-        triggered_by = item.get("triggered_by") or []
-        contraindications = item.get("contraindications") or []
-        inputs_triggered = item.get("inputs_triggered") or []
-
-        rec = SupplementRecommendation(
-            name=name,
-            dosage=round(dosage, 2),
-            unit=unit,
-            reason=reason,
-            triggered_by=[str(x) for x in triggered_by],
-            contraindications=[str(x) for x in contraindications],
-            inputs_triggered=[str(x) for x in inputs_triggered],
-            source="llm",
-        )
-        # Keep explanation aligned with the model’s reason.
-        rec.explanation = reason
-        out.append(rec)
-
-    return out
+    return data
