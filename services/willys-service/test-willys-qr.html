@@ -1,0 +1,55 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Willys – BankID QR (SSE)</title>
+<style>
+  body { background:#111; color:#eee; font:16px system-ui; padding:24px }
+  h1 { margin-top:0 }
+  #qr {
+    width:360px; height:360px; display:block; background:#fff; border-radius:12px;
+    image-rendering: pixelated; object-fit: contain;
+    margin-bottom:16px;
+  }
+  #log { white-space:pre-wrap; font:14px ui-monospace,Consolas,monospace;
+         background:#222; padding:12px; border-radius:10px; }
+</style>
+
+<h1>Willys – BankID QR (SSE)</h1>
+<img id="qr" alt="QR" />
+<div id="log"></div>
+
+<script>
+  const logEl = document.getElementById('log');
+  const qrEl  = document.getElementById('qr');
+
+  const log = (m) => {
+    const t = new Date().toLocaleTimeString();
+    logEl.textContent += `[${t}] ${m}\n`;
+  };
+
+  // Use a relative path so it works when this page is served by the same server.
+  const es = new EventSource('/willys/login-stream/qr');
+
+  es.addEventListener('log', (e) => {
+    try { log(JSON.parse(e.data).msg); } catch { log(e.data); }
+  });
+
+  // ✅ This is the event that carries the PNG data URL
+  es.addEventListener('qr-image', (e) => {
+    const { image } = JSON.parse(e.data);
+    qrEl.src = image; // data:image/png;base64,...
+  });
+
+  // Optional: show when tokens rotate (not needed for scanning)
+  es.addEventListener('qr-token', (e) => {
+    // const { token } = JSON.parse(e.data);
+    // log('token: ' + token);
+  });
+
+  es.addEventListener('collect', (e) => {
+    const data = JSON.parse(e.data);
+    log(`collect: ${data.status}${data.hintCode ? ' ('+data.hintCode+')' : ''}`);
+    if (data.status === 'COMPLETE') log('✅ Login complete');
+  });
+
+  es.addEventListener('error', (e) => log('ERROR: ' + (e.data || 'event error')));
+</script>

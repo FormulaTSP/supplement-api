@@ -1,0 +1,94 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Willys – BankID QR (SSE)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#111; color:#eee; font:16px system-ui; padding:24px; }
+  h1 { margin:0 0 16px; font-weight:800; letter-spacing:.4px; }
+  .wrap { display:grid; gap:16px; max-width:840px; }
+  img#qr {
+    width: 360px; height: 360px; object-fit: contain;
+    background:#fff; border-radius:14px; display:block; box-shadow:0 2px 24px #0008;
+  }
+  #meta { font:13px ui-monospace,Consolas,monospace; opacity:.9 }
+  #log {
+    white-space:pre-wrap; font:14px ui-monospace,Consolas,monospace;
+    background:#1b1b1b; padding:12px; border-radius:12px; min-height:120px;
+    box-shadow: inset 0 0 0 1px #ffffff14;
+  }
+  .row { display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { flex:1 1 320px; }
+  .ok { color:#7bd88f } .warn { color:#f5d90a } .err { color:#ff7a90 }
+  .token { word-break: break-all; }
+</style>
+
+<div class="wrap">
+  <h1>Willys – BankID QR (SSE)</h1>
+
+  <div class="row">
+    <img id="qr" alt="QR" />
+    <div class="panel" id="meta">
+      <div>Stream: <span id="status" class="warn">connecting…</span></div>
+      <div>Last token: <div id="token" class="token">—</div></div>
+      <div>Collect: <span id="collect">—</span></div>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const log = (m) => { $('log').textContent += m + '\n'; $('log').scrollTop = $('log').scrollHeight; };
+
+  const ES_URL = 'http://localhost:3031/willys/login-stream/qr';
+  const es = new EventSource(ES_URL);
+
+  $('status').textContent = 'connecting…';
+
+  es.addEventListener('open', () => {
+    $('status').textContent = 'connected';
+    $('status').className = 'ok';
+  });
+
+  es.addEventListener('log', e => {
+    const { msg } = JSON.parse(e.data);
+    log(msg);
+  });
+
+  // Preferred image event
+  es.addEventListener('qr-image', e => {
+    const { image } = JSON.parse(e.data);
+    $('qr').src = image;
+  });
+
+  // Back-compat: if server emits "qr" instead of "qr-image"
+  es.addEventListener('qr', e => {
+    const { image } = JSON.parse(e.data);
+    $('qr').src = image;
+  });
+
+  es.addEventListener('qr-token', e => {
+    const { token } = JSON.parse(e.data);
+    $('token').textContent = token;
+  });
+
+  es.addEventListener('collect', e => {
+    const { status, hintCode } = JSON.parse(e.data);
+    $('collect').textContent = status + (hintCode ? ` (${hintCode})` : '');
+    if (status === 'COMPLETE') $('status').textContent = 'COMPLETE ✅';
+  });
+
+  es.addEventListener('done', e => {
+    $('status').textContent = 'done';
+    $('status').className = 'ok';
+    log('DONE: ' + e.data);
+    es.close();
+  });
+
+  es.addEventListener('error', e => {
+    $('status').textContent = 'error';
+    $('status').className = 'err';
+    log('[event error] ' + (e.data || ''));
+  });
+</script>
