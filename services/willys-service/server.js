@@ -143,23 +143,67 @@ async function closeCookies(page) {
   return false;
 }
 
-async function switchToMobiltBankID(page) {
-  const dlg = page.locator('div[role="dialog"]').first();
-  const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
-  const ok = await clickAnyText(scope, [
-    /^Mobilt\s*BankID$/i,
-    /Mobilt\s*BankID/i,
-  ]);
-  if (ok) return true;
-  try {
-    const tab = scope
-      .getByRole("tab", { name: /^Mobilt\s*BankID$/i })
-      .first();
-    if (await tab.isVisible({ timeout: 600 })) {
-      await tab.click({ timeout: 1200 });
-      return true;
-    }
-  } catch {}
+async function switchToMobiltBankID(page, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    // Prefer the dialog as scope if visible, otherwise the whole page
+    const dlg = page.locator('div[role="dialog"]').first();
+    const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
+
+    // 1) Try our generic text-click helper on “Mobilt BankID”
+    const ok = await clickAnyText(scope, [
+      /^Mobilt\s*BankID$/i,
+      /Mobilt\s*BankID/i,
+    ]);
+    if (ok) return true;
+
+    // 2) More direct locator: any button/tab/link whose visible text matches
+    try {
+      const candidate = scope
+        .locator('button, [role="button"], [role="tab"], a')
+        .filter({ hasText: /Mobilt\s*BankID/i })
+        .first();
+
+      if (await candidate.isVisible({ timeout: 800 }).catch(() => false)) {
+        await candidate.click({ timeout: 1500 });
+        return true;
+      }
+    } catch {}
+
+    // 3) Last resort: DOM scan from inside the page for any visible element
+    // that looks like the Mobilt BankID tab/button, and click it.
+    try {
+      const clicked = await page.evaluate(() => {
+        const re = /mobilt\s*bankid/i;
+        const isVisible = (el) => {
+          if (!el) return false;
+          const style = window.getComputedStyle(el);
+          if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+          const rect = el.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        };
+
+        const candidates = Array.from(
+          document.querySelectorAll("button,[role=button],[role=tab],a,div,span")
+        );
+        for (const el of candidates) {
+          if (!isVisible(el)) continue;
+          const text = (el.textContent || "").trim();
+          if (re.test(text)) {
+            el.click();
+            return true;
+          }
+        }
+        return false;
+      });
+      if (clicked) return true;
+    } catch {}
+
+    // Wait a bit and try again
+    await page.waitForTimeout(400);
+  }
+
   return false;
 }
 
