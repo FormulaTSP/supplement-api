@@ -1,10 +1,13 @@
 {
   "name": "formula",
   "version": "1.0.0",
-  "description": "",
+  "description": "Supplement + grocery intelligence backend",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "login:willys": "node scripts/willysLogin_cli.js --headless=false",
+    "sync:willys": "node scripts/willys_sync.js",
+    "test": "echo \"No tests configured\""
   },
   "repository": {
     "type": "git",
@@ -18,7 +21,17 @@
   },
   "homepage": "https://github.com/FormulaTSP/supplement-api#readme",
   "dependencies": {
+    "canvas": "^3.2.0",
     "dotenv": "^17.2.1",
-    "playwright": "^1.55.0"
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^2.4.5",
+    "pdf2json": "^4.0.0",
+    "pdfjs-dist": "^4.10.38",
+    "playwright": "^1.56.1",
+    "qrcode": "^1.5.4",
+    "tesseract.js": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=18.17"
   }
 }

@@ -41,7 +41,7 @@
   const $ = (id) => document.getElementById(id);
   const log = (m) => { $('log').textContent += m + '\n'; $('log').scrollTop = $('log').scrollHeight; };
 
-  const ES_URL = 'http://localhost:3031/willys/login-stream/qr';
+  const ES_URL = 'https://willys-service.onrender.com/willys/login-stream/qr';
   const es = new EventSource(ES_URL);
 
   $('status').textContent = 'connecting…';

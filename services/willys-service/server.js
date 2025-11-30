@@ -4,11 +4,18 @@ import cors from "cors";
 import { chromium, request } from "playwright";
 import path from "node:path";
 import fs from "node:fs";
+import fetch from "node-fetch"; // ⭐ NEW: for calling Supabase edge function
 
 // ---------- constants ----------
 const PORT = Number(process.env.PORT || process.env.WILLYS_SVC_PORT || 3031);
 const LOGIN_URL = "https://www.willys.se/anvandare/inloggning";
 const SESSION_PATH = path.resolve(process.cwd(), "willys-session.json");
+
+// ⭐ NEW: Supabase edge function config
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_WILLYS_FUNCTION =
+  process.env.SUPABASE_WILLYS_FUNCTION || "store-willys-receipts";
 
 // ---------- tiny helpers ----------
 function sseSend(res, event, data) {
@@ -30,6 +37,48 @@ async function safe(fn, label) {
     console.log(`[safe:${label}]`, e?.message || e);
     return undefined;
   }
+}
+
+// ⭐ NEW: helper to call Supabase edge function
+async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in env");
+  }
+
+  const fnUrl = `${SUPABASE_URL}/functions/v1/${SUPABASE_WILLYS_FUNCTION}`;
+  console.log("[supabase] Calling edge function:", fnUrl);
+
+  const resp = await fetch(fnUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({
+      supabase_user_id: supabaseUserId,
+      receipts,
+    }),
+  });
+
+  const text = await resp.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Supabase function returned non-JSON (${resp.status}): ${text.slice(0, 200)}`
+    );
+  }
+
+  if (!resp.ok) {
+    throw new Error(
+      `Supabase function error ${resp.status}: ${
+        data.error || text.slice(0, 200)
+      }`
+    );
+  }
+
+  return data; // expected: { success, receipts_imported, items_count, recent_items }
 }
 
 // ---------- page utilities ----------
@@ -259,7 +308,7 @@ async function runBankIdLogin({
     const hint = await waitForQrHints(page, 15_000);
     if (hint) log?.(`QR hint: ${JSON.stringify(hint)}`);
 
-    // ⭐ NEW: hide ONLY the close "X" button inside the dialog
+    // hide ONLY the close "X" button inside the dialog
     await safe(
       () =>
         page.addStyleTag({
@@ -423,6 +472,65 @@ app.get("/willys/me", async (_req, res) => {
     await api.dispose();
   } catch (e) {
     res.status(500).json({ ok: false, error: e?.message || String(e) });
+  }
+});
+
+// ⭐ NEW: stub endpoint to fetch & store receipts via Supabase edge function
+app.post("/willys/fetch-receipts", async (req, res) => {
+  try {
+    const { supabase_user_id } = req.body || {};
+
+    if (!supabase_user_id) {
+      return res.status(400).json({
+        success: false,
+        error: "supabase_user_id is required",
+      });
+    }
+
+    // For now: we do NOT yet call Willys APIs.
+    // We send a single dummy receipt to wire everything up.
+
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    const dummyReceipt = {
+      receipt_date: `${yyyy}-${mm}-${dd}`,
+      store_name: "Willys",
+      items: [
+        {
+          name: "Exempelfrukt",
+          quantity: 1,
+          price: 10.5,
+          category: null,
+        },
+        {
+          name: "Exempelbröd",
+          quantity: 1,
+          price: 25.0,
+          category: null,
+        },
+      ],
+      raw_text:
+        "Dummy Willys receipt used to test wiring between Render and Supabase.",
+    };
+
+    const supabaseResponse = await forwardReceiptsToSupabase({
+      supabaseUserId: supabase_user_id,
+      receipts: [dummyReceipt],
+    });
+
+    return res.json({
+      success: true,
+      ...supabaseResponse,
+    });
+  } catch (err) {
+    console.error("[/willys/fetch-receipts] Error:", err?.message || err);
+    return res.status(500).json({
+      success: false,
+      error: err?.message || "Internal error while fetching/storing receipts",
+    });
   }
 });
 

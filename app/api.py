@@ -1,3 +1,5 @@
+# app/api.py
+
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +8,18 @@ from typing import List, Optional, Dict, Union
 from dotenv import load_dotenv
 import uuid
 import logging
+
+# --- Windows Playwright fix: use Proactor loop for subprocess support ---
+import asyncio
+import platform
+
+if platform.system() == "Windows":
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    except Exception:
+        # Best effort; on some Python versions this may already be default
+        pass
+# -----------------------------------------------------------------------
 
 load_dotenv()
 
@@ -137,8 +151,10 @@ def recommend(user_input: FrontendUserInput):
         grocery_data = [item.dict() for item in user_input.processed_grocery_data or []]
         blood_data = [item.dict() for item in user_input.processed_blood_data or []]
 
-        logger.info(f"Received household={bool(household_data)}, "
-                    f"groceries={len(grocery_data)}, blood_tests={len(blood_data)}")
+        logger.info(
+            f"Received household={bool(household_data)}, "
+            f"groceries={len(grocery_data)}, blood_tests={len(blood_data)}"
+        )
 
         # Build internal user profile
         user = UserProfile(
@@ -166,12 +182,16 @@ def recommend(user_input: FrontendUserInput):
 
     except PlanningError as e:
         logger.error(f"LLM planning error: {e}")
-        raise HTTPException(status_code=502,
-                            detail="Supplement planning temporarily unavailable. Please try again later.")
+        raise HTTPException(
+            status_code=502,
+            detail="Supplement planning temporarily unavailable. Please try again later.",
+        )
     except Exception as e:
         logger.error(f"Error in /recommend endpoint: {e}", exc_info=True)
-        raise HTTPException(status_code=500,
-                            detail="Internal Server Error. Please check your input and try again.")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal Server Error. Please check your input and try again.",
+        )
 
 
 # -----------------------------
@@ -185,3 +205,10 @@ app.include_router(grocery_router)
 
 from app.bloodtest_ocr import router as bloodtest_router
 app.include_router(bloodtest_router)
+
+from app.retail_sync_router import router as retail_sync_router
+app.include_router(retail_sync_router)
+
+# Willys (login + sync) endpoints
+from app.willys_router import router as willys_router
+app.include_router(willys_router)

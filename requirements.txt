@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 scikit-learn
 numpy
@@ -14,3 +14,7 @@ pdf2image
 openpyxl
 tiktoken
 pdfminer.six>=20221105
+
+# Added for Willys QR Login + Sync
+sse-starlette
+playwright
