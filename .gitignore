@@ -241,3 +241,24 @@ supabase/.temp/
 
 # Do NOT include the separate BankID repo inside this repo
 bankid/
+
+
+# --- Willys / Playwright / OCR stuff we don't want in Git ---
+
+# Tesseract traineddata
+*.traineddata
+
+# Generated outputs and debug screenshots
+out/
+login-debug/
+qr-dialog*.png
+willys-dialog-check.png
+
+# Local session & logs
+willys-session.json
+willys_log.txt
+willys_sync_run.txt
+willys_test_log.txt
+
+# Windows ghost file
+nul
