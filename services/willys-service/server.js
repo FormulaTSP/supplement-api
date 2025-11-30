@@ -4,25 +4,32 @@ import cors from "cors";
 import { chromium, request } from "playwright";
 import path from "node:path";
 import fs from "node:fs";
-import fetch from "node-fetch"; // ⭐ NEW: for calling Supabase edge function
+import fetch from "node-fetch"; // for calling Supabase edge function
 
 // ---------- constants ----------
 const PORT = Number(process.env.PORT || process.env.WILLYS_SVC_PORT || 3031);
 const LOGIN_URL = "https://www.willys.se/anvandare/inloggning";
 const SESSION_PATH = path.resolve(process.cwd(), "willys-session.json");
 
-// ⭐ NEW: Supabase edge function config
+// Supabase edge function config
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_WILLYS_FUNCTION =
   process.env.SUPABASE_WILLYS_FUNCTION || "store-willys-receipts";
+
+// How far back to fetch receipts if caller doesn’t specify
+const DEFAULT_RECEIPT_MONTHS = Number(
+  process.env.RECEIPT_MONTHS_DEFAULT || 12
+);
 
 // ---------- tiny helpers ----------
 function sseSend(res, event, data) {
   res.write(`event: ${event}\n`);
   res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const haveSession = () => {
   try {
     return fs.existsSync(SESSION_PATH) && fs.statSync(SESSION_PATH).size > 0;
@@ -30,6 +37,7 @@ const haveSession = () => {
     return false;
   }
 };
+
 async function safe(fn, label) {
   try {
     return await fn();
@@ -39,7 +47,205 @@ async function safe(fn, label) {
   }
 }
 
-// ⭐ NEW: helper to call Supabase edge function
+// ---------- date helpers (for API range) ----------
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function toYmd(d) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function todayYmd() {
+  return toYmd(new Date());
+}
+
+function fromFirstDayForMonthsBuffered(months) {
+  const m = Math.max(1, Number(months || 1));
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(1);
+  d.setMonth(d.getMonth() - (m - 1));
+  d.setDate(d.getDate() - 2); // 2-day safety buffer
+  return toYmd(d);
+}
+
+// ---------- Willys API helpers using stored session ----------
+async function createWillysApiContext() {
+  if (!haveSession()) {
+    throw new Error("No saved Willys session (willys-session.json missing)");
+  }
+
+  return await request.newContext({
+    baseURL: "https://www.willys.se",
+    storageState: SESSION_PATH,
+    extraHTTPHeaders: {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+      referer: "https://www.willys.se/mina-kop",
+    },
+  });
+}
+
+async function getJsonWithRetry(req, absUrl, retries = 3) {
+  let attempt = 0;
+  let lastErr = null;
+
+  while (attempt <= retries) {
+    try {
+      const resp = await req.get(absUrl, {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          referer: "https://www.willys.se/mina-kop",
+          "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+        },
+      });
+
+      if (!resp.ok()) {
+        throw new Error(`HTTP ${resp.status()} for ${absUrl}`);
+      }
+
+      const text = await resp.text();
+      const ctype = (resp.headers()["content-type"] || "").toLowerCase();
+
+      if (ctype.includes("text/html") || /^\s*<!doctype html/i.test(text)) {
+        throw new Error(`Expected JSON, got HTML for ${absUrl}`);
+      }
+
+      return JSON.parse(text);
+    } catch (e) {
+      lastErr = e;
+      const backoff = Math.min(2000, 300 * attempt);
+      if (attempt < retries && backoff) {
+        await sleep(backoff);
+      }
+    }
+    attempt++;
+  }
+
+  throw lastErr || new Error("Unknown API error");
+}
+
+/**
+ * Call /axfood/rest/account/pagedOrderBonusCombined and build
+ * receipt descriptors with digitalreceipt URLs.
+ */
+async function fetchReceiptDescriptors(
+  req,
+  { fromDate, toDate, pageSize = 100, maxPages = null, retries = 3 } = {}
+) {
+  const BASE_URL = "https://www.willys.se";
+  const out = [];
+
+  let page = 0;
+  let numberOfPages = 1;
+
+  const isYmd = (s) =>
+    typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+  const toYmdSafe = (v) => {
+    try {
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return null;
+      return toYmd(d);
+    } catch {
+      return null;
+    }
+  };
+
+  while (true) {
+    if (maxPages && page >= maxPages) {
+      console.log(
+        `[willys-service] Stopping at maxPages=${maxPages} (page=${page})`
+      );
+      break;
+    }
+
+    const rel =
+      `/axfood/rest/account/pagedOrderBonusCombined` +
+      `?fromDate=${fromDate}&toDate=${toDate}` +
+      `&currentPage=${page}&pageSize=${Math.min(100, pageSize)}`;
+
+    const abs = BASE_URL + rel;
+
+    const json = await getJsonWithRetry(req, abs, retries);
+
+    const results = json?.loyaltyTransactionsInPage || [];
+    numberOfPages = json?.paginationData?.numberOfPages ?? 1;
+    const serverPage = json?.paginationData?.currentPage ?? page;
+
+    for (const t of results) {
+      if (!t?.digitalReceiptAvailable || !t?.digitalReceiptReference) continue;
+
+      const reference = String(t.digitalReceiptReference || "");
+
+      // Derive datePart
+      let datePart = null;
+      const refPrefix = reference.includes("T")
+        ? reference.split("T")[0]
+        : null;
+
+      if (refPrefix && isYmd(refPrefix)) {
+        datePart = refPrefix;
+      } else {
+        datePart =
+          toYmdSafe(t.bookingDate) ||
+          toYmdSafe(t.orderDate) ||
+          toYmdSafe(t.creationTime) ||
+          null;
+      }
+
+      const storeId =
+        t.storeCustomerId ||
+        t.storeId ||
+        (t.store && (t.store.id || t.store.code)) ||
+        null;
+
+      const source = t.receiptSource || "aws";
+
+      const memberCard =
+        t.memberCardNumber ||
+        t.cardNumber ||
+        t.memberCard ||
+        null;
+
+      if (!datePart || !storeId || !memberCard) continue;
+
+      const digitalUrl =
+        `${BASE_URL}/axfood/rest/order/orders/digitalreceipt/${encodeURIComponent(
+          reference
+        )}` +
+        `?date=${encodeURIComponent(datePart)}` +
+        `&storeId=${encodeURIComponent(storeId)}` +
+        `&source=${encodeURIComponent(source)}` +
+        `&memberCardNumber=${encodeURIComponent(memberCard)}`;
+
+      out.push({
+        receipt_date: datePart,
+        store_name: t.store?.name || "Willys",
+        digitalreceipt_url: digitalUrl,
+        reference,
+      });
+    }
+
+    console.log(
+      `[willys-service] Page ${serverPage + 1}/${numberOfPages} → ${results.length} row(s), total descriptors=${out.length}`
+    );
+
+    if (serverPage + 1 >= numberOfPages) break;
+    page = serverPage + 1;
+  }
+
+  // de-duplicate by URL just in case
+  const seen = new Set();
+  return out.filter((r) => {
+    if (seen.has(r.digitalreceipt_url)) return false;
+    seen.add(r.digitalreceipt_url);
+    return true;
+  });
+}
+
+// ---------- helper to call Supabase edge function ----------
 async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in env");
@@ -53,6 +259,7 @@ async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
     headers: {
       "Content-Type": "application/json",
       apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
     },
     body: JSON.stringify({
       supabase_user_id: supabaseUserId,
@@ -66,7 +273,10 @@ async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
     data = JSON.parse(text);
   } catch {
     throw new Error(
-      `Supabase function returned non-JSON (${resp.status}): ${text.slice(0, 200)}`
+      `Supabase function returned non-JSON (${resp.status}): ${text.slice(
+        0,
+        200
+      )}`
     );
   }
 
@@ -78,10 +288,10 @@ async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
     );
   }
 
-  return data; // expected: { success, receipts_imported, items_count, recent_items }
+  return data; // e.g. { receipts_imported, items_count, recent_items, ... }
 }
 
-// ---------- page utilities ----------
+// ---------- page utilities (QR login flow) ----------
 async function clickAnyText(page, patterns, scope) {
   const root = scope || page;
   for (const re of patterns) {
@@ -147,18 +357,15 @@ async function switchToMobiltBankID(page, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    // Prefer the dialog as scope if visible, otherwise the whole page
     const dlg = page.locator('div[role="dialog"]').first();
     const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
-    // 1) Try our generic text-click helper on “Mobilt BankID”
     const ok = await clickAnyText(scope, [
       /^Mobilt\s*BankID$/i,
       /Mobilt\s*BankID/i,
     ]);
     if (ok) return true;
 
-    // 2) More direct locator: any button/tab/link whose visible text matches
     try {
       const candidate = scope
         .locator('button, [role="button"], [role="tab"], a')
@@ -171,21 +378,26 @@ async function switchToMobiltBankID(page, timeoutMs = 15000) {
       }
     } catch {}
 
-    // 3) Last resort: DOM scan from inside the page for any visible element
-    // that looks like the Mobilt BankID tab/button, and click it.
     try {
       const clicked = await page.evaluate(() => {
         const re = /mobilt\s*bankid/i;
         const isVisible = (el) => {
           if (!el) return false;
           const style = window.getComputedStyle(el);
-          if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+          if (
+            style.display === "none" ||
+            style.visibility === "hidden" ||
+            style.opacity === "0"
+          )
+            return false;
           const rect = el.getBoundingClientRect();
           return rect.width > 0 && rect.height > 0;
         };
 
         const candidates = Array.from(
-          document.querySelectorAll("button,[role=button],[role=tab],a,div,span")
+          document.querySelectorAll(
+            "button,[role=button],[role=tab],a,div,span"
+          )
         );
         for (const el of candidates) {
           if (!isVisible(el)) continue;
@@ -200,7 +412,6 @@ async function switchToMobiltBankID(page, timeoutMs = 15000) {
       if (clicked) return true;
     } catch {}
 
-    // Wait a bit and try again
     await page.waitForTimeout(400);
   }
 
@@ -211,7 +422,6 @@ async function clickToShowQR(page) {
   const dlg = page.locator('div[role="dialog"]').first();
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
-  // common exact labels
   let ok = await clickAnyText(scope, [
     /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
     /Logga in med Mobilt BankID/i,
@@ -219,7 +429,6 @@ async function clickToShowQR(page) {
   ]);
   if (ok) return true;
 
-  // try after a small scroll in the dialog
   try {
     await page.evaluate(() => {
       const el = document.querySelector('div[role="dialog"]');
@@ -315,7 +524,6 @@ async function runBankIdLogin({
       viewport: { width: 420, height: 640 },
     });
 
-    // reduce noise
     context.on("request", async (req) => {
       try {
         if (req.resourceType() === "font") await req.abort();
@@ -352,7 +560,6 @@ async function runBankIdLogin({
     const hint = await waitForQrHints(page, 15_000);
     if (hint) log?.(`QR hint: ${JSON.stringify(hint)}`);
 
-    // hide ONLY the close "X" button inside the dialog
     await safe(
       () =>
         page.addStyleTag({
@@ -371,7 +578,6 @@ async function runBankIdLogin({
       "hideCloseButton"
     );
 
-    // snapshot the dialog periodically (full dialog, now without X)
     const dlg = page.locator('div[role="dialog"]').first();
     const snapshotTimer = setInterval(async () => {
       try {
@@ -394,7 +600,6 @@ async function runBankIdLogin({
       } catch {}
     }, 1500);
 
-    // wait loop for COMPLETE
     const started = Date.now();
     let final;
     const waiter = new Promise((resolve) => {
@@ -436,7 +641,9 @@ async function runBankIdLogin({
       "done",
       final?.ok ? { ok: true, result: final.result } : { ok: false }
     );
-    return final?.ok ? final : { ok: false, error: final?.error || "Unknown error" };
+    return final?.ok
+      ? final
+      : { ok: false, error: final?.error || "Unknown error" };
   } catch (err) {
     await safe(() => browser?.close(), "closeBrowserOnError");
     onEvent?.("error", { msg: err?.message || String(err) });
@@ -500,7 +707,6 @@ app.get("/willys/me", async (_req, res) => {
   }
 
   try {
-    // Use the saved cookies/session, no browser needed
     const api = await request.newContext({
       baseURL: "https://www.willys.se",
       storageState: SESSION_PATH,
@@ -519,10 +725,17 @@ app.get("/willys/me", async (_req, res) => {
   }
 });
 
-// ⭐ NEW: stub endpoint to fetch & store receipts via Supabase edge function
+// --- NEW: fetch Willys receipts and forward to Supabase edge ---
 app.post("/willys/fetch-receipts", async (req, res) => {
   try {
-    const { supabase_user_id } = req.body || {};
+    if (!haveSession()) {
+      return res.status(401).json({
+        success: false,
+        error: "No Willys session. Run QR login first.",
+      });
+    }
+
+    const { supabase_user_id, months, pageSize, maxPages } = req.body || {};
 
     if (!supabase_user_id) {
       return res.status(400).json({
@@ -531,43 +744,41 @@ app.post("/willys/fetch-receipts", async (req, res) => {
       });
     }
 
-    // For now: we do NOT yet call Willys APIs.
-    // We send a single dummy receipt to wire everything up.
+    const rangeMonths = Number(months || DEFAULT_RECEIPT_MONTHS);
+    const fromDate = fromFirstDayForMonthsBuffered(rangeMonths);
+    const toDate = todayYmd();
 
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
+    console.log(
+      `[willys-service] Fetching receipts range ${fromDate} → ${toDate} (months=${rangeMonths})`
+    );
 
-    const dummyReceipt = {
-      receipt_date: `${yyyy}-${mm}-${dd}`,
-      store_name: "Willys",
-      items: [
-        {
-          name: "Exempelfrukt",
-          quantity: 1,
-          price: 10.5,
-          category: null,
-        },
-        {
-          name: "Exempelbröd",
-          quantity: 1,
-          price: 25.0,
-          category: null,
-        },
-      ],
-      raw_text:
-        "Dummy Willys receipt used to test wiring between Render and Supabase.",
-    };
+    const ctx = await createWillysApiContext();
+    const descriptors = await fetchReceiptDescriptors(ctx, {
+      fromDate,
+      toDate,
+      pageSize: Number(pageSize || 100),
+      maxPages: maxPages ? Number(maxPages) : null,
+      retries: 3,
+    });
+    await ctx.dispose();
+
+    console.log(
+      `[willys-service] Collected ${descriptors.length} receipt descriptor(s)`
+    );
 
     const supabaseResponse = await forwardReceiptsToSupabase({
       supabaseUserId: supabase_user_id,
-      receipts: [dummyReceipt],
+      receipts: descriptors,
     });
 
     return res.json({
       success: true,
       ...supabaseResponse,
+      meta: {
+        descriptorsCount: descriptors.length,
+        fromDate,
+        toDate,
+      },
     });
   } catch (err) {
     console.error("[/willys/fetch-receipts] Error:", err?.message || err);
