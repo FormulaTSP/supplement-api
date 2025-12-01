@@ -10,12 +10,19 @@ import fetch from "node-fetch"; // for calling Supabase edge function
 const PORT = Number(process.env.PORT || process.env.WILLYS_SVC_PORT || 3031);
 const LOGIN_URL = "https://www.willys.se/anvandare/inloggning";
 const SESSION_PATH = path.resolve(process.cwd(), "willys-session.json");
+const SESSION_DIR = path.resolve(process.cwd());
 
 // Supabase edge function config
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_WILLYS_FUNCTION =
   process.env.SUPABASE_WILLYS_FUNCTION || "store-willys-receipts";
+const SUPABASE_WILLYS_FUNCTION_WITH_CONTENT =
+  process.env.SUPABASE_WILLYS_FUNCTION_WITH_CONTENT ||
+  "store-willys-receipts-with-content";
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const WILLYS_SESSION_TABLE =
+  process.env.WILLYS_SESSION_TABLE || "willys_sessions";
 
 // How far back to fetch receipts if caller doesn’t specify
 const DEFAULT_RECEIPT_MONTHS = Number(
@@ -30,9 +37,15 @@ function sseSend(res, event, data) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const haveSession = () => {
+const sessionPathFor = (userId) => {
+  if (!userId) return SESSION_PATH;
+  const safe = String(userId).replace(/[^\w.-]/g, "_").slice(0, 120);
+  return path.join(SESSION_DIR, `willys-session-${safe}.json`);
+};
+
+const haveSession = (p = SESSION_PATH) => {
   try {
-    return fs.existsSync(SESSION_PATH) && fs.statSync(SESSION_PATH).size > 0;
+    return fs.existsSync(p) && fs.statSync(p).size > 0;
   } catch {
     return false;
   }
@@ -45,6 +58,92 @@ async function safe(fn, label) {
     console.log(`[safe:${label}]`, e?.message || e);
     return undefined;
   }
+}
+
+// ---------- Supabase session store helpers (per-user storageState) ----------
+async function saveSessionToStore(userId, storageState) {
+  if (!userId || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return false;
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/${WILLYS_SESSION_TABLE}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        Prefer: "resolution=merge-duplicates",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        storage_state: storageState,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      console.warn(
+        `[willys-session] Failed to save session for ${userId}: ${resp.status} ${t.slice(
+          0,
+          200
+        )}`
+      );
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn(
+      `[willys-session] Error saving session for ${userId}:`,
+      e?.message || e
+    );
+    return false;
+  }
+}
+
+async function loadSessionFromStore(userId) {
+  if (!userId || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${WILLYS_SESSION_TABLE}?user_id=eq.${encodeURIComponent(
+      userId
+    )}&select=storage_state&limit=1`;
+    const resp = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        Accept: "application/json",
+      },
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      console.warn(
+        `[willys-session] Failed to load session for ${userId}: ${resp.status} ${t.slice(
+          0,
+          200
+        )}`
+      );
+      return null;
+    }
+    const data = await resp.json();
+    return data?.[0]?.storage_state || null;
+  } catch (e) {
+    console.warn(
+      `[willys-session] Error loading session for ${userId}:`,
+      e?.message || e
+    );
+    return null;
+  }
+}
+
+async function getStorageStateForUser(userId, sessionPath) {
+  // Prefer Supabase store; fall back to file.
+  const stateFromDb = await loadSessionFromStore(userId);
+  if (stateFromDb) return stateFromDb;
+
+  if (sessionPath && haveSession(sessionPath)) {
+    try {
+      const txt = fs.readFileSync(sessionPath, "utf8");
+      return JSON.parse(txt);
+    } catch {}
+  }
+  return null;
 }
 
 // ---------- date helpers (for API range) ----------
@@ -71,14 +170,18 @@ function fromFirstDayForMonthsBuffered(months) {
 }
 
 // ---------- Willys API helpers using stored session ----------
-async function createWillysApiContext() {
-  if (!haveSession()) {
-    throw new Error("No saved Willys session (willys-session.json missing)");
+async function createWillysApiContext({
+  userId = null,
+  sessionPath = SESSION_PATH,
+} = {}) {
+  const storageState = await getStorageStateForUser(userId, sessionPath);
+  if (!storageState && !haveSession(sessionPath)) {
+    throw new Error("No saved Willys session (storage missing)");
   }
 
   return await request.newContext({
     baseURL: "https://www.willys.se",
-    storageState: SESSION_PATH,
+    storageState: storageState || sessionPath,
     extraHTTPHeaders: {
       accept: "application/json, text/plain, */*",
       "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
@@ -289,6 +392,105 @@ async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
   }
 
   return data; // e.g. { receipts_imported, items_count, recent_items, ... }
+}
+
+// Helper to forward receipts with content to a dedicated edge function
+async function forwardReceiptsWithContentToSupabase({ supabaseUserId, receipts }) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in env");
+  }
+
+  const fnUrl = `${SUPABASE_URL}/functions/v1/${SUPABASE_WILLYS_FUNCTION_WITH_CONTENT}`;
+  console.log("[supabase] Calling edge function (with content):", fnUrl);
+
+  const resp = await fetch(fnUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({
+      supabase_user_id: supabaseUserId,
+      receipts,
+    }),
+  });
+
+  const text = await resp.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Supabase function (with content) returned non-JSON (${resp.status}): ${text.slice(
+        0,
+        200
+      )}`
+    );
+  }
+
+  if (!resp.ok) {
+    throw new Error(
+      `Supabase function (with content) error ${resp.status}: ${
+        data.error || text.slice(0, 200)
+      }`
+    );
+  }
+
+  return data;
+}
+
+// ---------- download receipt bodies with saved session ----------
+async function fetchReceiptBodies({ storageState = null, sessionPath = null }, descriptors) {
+  const ctx = await request.newContext({
+    baseURL: "https://www.willys.se",
+    storageState: storageState || sessionPath,
+    extraHTTPHeaders: {
+      accept: "application/json, text/plain, */*",
+      referer: "https://www.willys.se/mina-kop",
+      "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+    },
+  });
+
+  const out = [];
+  for (const desc of descriptors) {
+    try {
+      const resp = await ctx.get(desc.digitalreceipt_url, {
+        headers: {
+          accept: "application/pdf, text/html, */*",
+          referer: "https://www.willys.se/mina-kop",
+          "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+        },
+      });
+      const ctype = resp.headers()["content-type"] || "application/octet-stream";
+      const buf = Buffer.from(await resp.body());
+      out.push({
+        ...desc,
+        content_type: ctype,
+        content_base64: buf.toString("base64"),
+        byte_length: buf.length,
+      });
+    } catch (e) {
+      console.error(
+        `[willys-service] Failed to download receipt ${desc.reference || desc.digitalreceipt_url}:`,
+        e?.message || e
+      );
+    }
+  }
+
+  await ctx.dispose();
+  return out;
+}
+
+// ---------- per-user helpers ----------
+function resolveUserId(req) {
+  return (
+    req?.query?.supabase_user_id ||
+    req?.query?.user_id ||
+    req?.body?.supabase_user_id ||
+    req?.headers["x-supabase-user-id"] ||
+    null
+  );
 }
 
 // ---------- page utilities (QR login flow) ----------
@@ -509,6 +711,8 @@ function attachNetworkTaps(page, onEvent) {
 async function runBankIdLogin({
   headless = true,
   timeoutMs = 180_000,
+  userId = null,
+  sessionPath = SESSION_PATH,
   onEvent,
 } = {}) {
   let browser, context, page;
@@ -630,10 +834,12 @@ async function runBankIdLogin({
 
     if (final?.ok) {
       log?.("Login COMPLETE → saving session.");
-      await safe(
-        () => context.storageState({ path: SESSION_PATH }),
-        "saveSession"
-      );
+      await safe(() => fs.mkdirSync(path.dirname(sessionPath), { recursive: true }), "ensureSessionDir");
+      const stateObj = await safe(() => context.storageState(), "getStateObj");
+      await safe(() => context.storageState({ path: sessionPath }), "saveSessionFile");
+      if (stateObj && userId) {
+        await saveSessionToStore(userId, stateObj);
+      }
     }
 
     await safe(() => browser.close(), "closeBrowser");
@@ -663,6 +869,9 @@ app.get("/willys/login-stream/qr", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders?.();
 
+  const userId = resolveUserId(req);
+  const sessionPath = sessionPathFor(userId);
+
   const end = () => {
     try {
       res.end();
@@ -671,6 +880,8 @@ app.get("/willys/login-stream/qr", async (req, res) => {
 
   const result = await runBankIdLogin({
     headless: true,
+    userId,
+    sessionPath,
     onEvent: (evt, data) => {
       sseSend(res, evt, data);
       if (evt === "done" && (data?.ok || data?.error)) end();
@@ -687,9 +898,13 @@ app.get("/willys/login-stream/qr", async (req, res) => {
 // --- JSON login endpoint (no SSE) ---
 app.post("/willys/login", async (req, res) => {
   const timeoutMs = Number(req.body?.timeoutMs ?? 180_000);
+  const userId = resolveUserId(req);
+  const sessionPath = sessionPathFor(userId);
   const r = await runBankIdLogin({
     headless: true,
     timeoutMs,
+    userId,
+    sessionPath,
     onEvent: (evt, data) => {
       if (evt === "log") console.log(`[willys-login] ${data.msg}`);
       if (evt === "collect")
@@ -702,14 +917,18 @@ app.post("/willys/login", async (req, res) => {
 
 // --- Session probe using saved storage ---
 app.get("/willys/me", async (_req, res) => {
-  if (!haveSession()) {
-    return res.status(401).json({ ok: false, error: "No saved session yet" });
-  }
+  const userId = resolveUserId(_req);
+  const sessionPath = sessionPathFor(userId);
 
   try {
+    const storageState = await getStorageStateForUser(userId, sessionPath);
+    if (!storageState && !haveSession(sessionPath)) {
+      return res.status(401).json({ ok: false, error: "No saved session yet" });
+    }
+
     const api = await request.newContext({
       baseURL: "https://www.willys.se",
-      storageState: SESSION_PATH,
+      storageState: storageState || sessionPath,
       extraHTTPHeaders: { accept: "application/json, text/plain, */*" },
     });
 
@@ -728,7 +947,12 @@ app.get("/willys/me", async (_req, res) => {
 // --- NEW: fetch Willys receipts and forward to Supabase edge ---
 app.post("/willys/fetch-receipts", async (req, res) => {
   try {
-    if (!haveSession()) {
+    const userId = resolveUserId(req);
+    const sessionPath = sessionPathFor(userId);
+
+    const storageState = await getStorageStateForUser(userId, sessionPath);
+
+    if (!storageState && !haveSession(sessionPath)) {
       return res.status(401).json({
         success: false,
         error: "No Willys session. Run QR login first.",
@@ -752,7 +976,7 @@ app.post("/willys/fetch-receipts", async (req, res) => {
       `[willys-service] Fetching receipts range ${fromDate} → ${toDate} (months=${rangeMonths})`
     );
 
-    const ctx = await createWillysApiContext();
+    const ctx = await createWillysApiContext({ userId, sessionPath });
     const descriptors = await fetchReceiptDescriptors(ctx, {
       fromDate,
       toDate,
@@ -785,6 +1009,84 @@ app.post("/willys/fetch-receipts", async (req, res) => {
     return res.status(500).json({
       success: false,
       error: err?.message || "Internal error while fetching/storing receipts",
+    });
+  }
+});
+
+// --- NEW: fetch receipts and include content (for server-side ingestion) ---
+app.post("/willys/fetch-receipts-with-content", async (req, res) => {
+  try {
+    const userId = resolveUserId(req);
+    const sessionPath = sessionPathFor(userId);
+
+    const storageState = await getStorageStateForUser(userId, sessionPath);
+
+    if (!storageState && !haveSession(sessionPath)) {
+      return res.status(401).json({
+        success: false,
+        error: "No Willys session. Run QR login first.",
+      });
+    }
+
+    const { supabase_user_id, months, pageSize, maxPages } = req.body || {};
+
+    if (!supabase_user_id) {
+      return res.status(400).json({
+        success: false,
+        error: "supabase_user_id is required",
+      });
+    }
+
+    const rangeMonths = Number(months || DEFAULT_RECEIPT_MONTHS);
+    const fromDate = fromFirstDayForMonthsBuffered(rangeMonths);
+    const toDate = todayYmd();
+
+    console.log(
+      `[willys-service] (with-content) Fetching receipts range ${fromDate} → ${toDate} (months=${rangeMonths})`
+    );
+
+    const ctx = await createWillysApiContext({ userId, sessionPath });
+    const descriptors = await fetchReceiptDescriptors(ctx, {
+      fromDate,
+      toDate,
+      pageSize: Number(pageSize || 100),
+      maxPages: maxPages ? Number(maxPages) : null,
+      retries: 3,
+    });
+    await ctx.dispose();
+
+    const receipts = await fetchReceiptBodies(
+      { storageState, sessionPath },
+      descriptors
+    );
+
+    let supabaseResponse = null;
+    try {
+      supabaseResponse = await forwardReceiptsWithContentToSupabase({
+        supabaseUserId: supabase_user_id,
+        receipts,
+      });
+    } catch (err) {
+      console.warn(
+        "[willys-service] Forward with content failed (edge function may not be deployed):",
+        err?.message || err
+      );
+    }
+
+    return res.json({
+      success: true,
+      descriptorsCount: descriptors.length,
+      receiptsCount: receipts.length,
+      meta: { fromDate, toDate },
+      forwarded: Boolean(supabaseResponse),
+      supabase: supabaseResponse || null,
+      receipts: supabaseResponse ? undefined : receipts,
+    });
+  } catch (err) {
+    console.error("[/willys/fetch-receipts-with-content] Error:", err?.message || err);
+    return res.status(500).json({
+      success: false,
+      error: err?.message || "Internal error while fetching receipts with content",
     });
   }
 });
