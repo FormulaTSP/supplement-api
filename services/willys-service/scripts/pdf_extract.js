@@ -1,5 +1,7 @@
 // services/willys-service/scripts/pdf_extract.js
 import PDFParser from "pdf2json";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 async function extractWithPdf2Json(buffer) {
   return await new Promise((resolve, reject) => {
@@ -24,11 +26,15 @@ async function extractWithPdf2Json(buffer) {
 
 async function extractWithPdfJs(buffer) {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const fontPath = path.join(__dirname, "../../node_modules/pdfjs-dist/standard_fonts/");
+
   const data = new Uint8Array(buffer);
   const loadingTask = pdfjs.getDocument({
     data,
     disableWorker: true,
     disableFontFace: true,
+    standardFontDataUrl: fontPath.endsWith("/") ? fontPath : fontPath + "/",
   });
   const pdf = await loadingTask.promise;
   const lines = [];
