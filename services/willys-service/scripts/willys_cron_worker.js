@@ -135,12 +135,7 @@ async function upsertReceiptsDirect(userId, receipts) {
     });
 
     // Map into grocery_data schema
-    const gid =
-      r.reference ||
-      crypto.createHash("sha1").update(`${userId}:${r.digitalreceipt_url || ""}`).digest("hex");
-
     groceryRows.push({
-      id: gid,
       user_id: userId,
       store: r.store_name || "Willys",
       store_name: r.store_name || "Willys",
