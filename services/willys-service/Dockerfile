@@ -1,20 +1,20 @@
-# Use official Playwright image (has Chromium + deps preinstalled)
-FROM mcr.microsoft.com/playwright:v1.49.0-jammy
+# services/willys-service/Dockerfile
 
-# Set working directory at repo root
+FROM node:22
+
+# /app will be the repo root inside the container
 WORKDIR /app
 
-# Copy only the service package manifests and install
-COPY services/willys-service/package*.json services/willys-service/
-RUN npm install --prefix services/willys-service --omit=dev
+# 1) Copy the willys-service package manifest and install its deps
+COPY services/willys-service/package*.json ./services/willys-service/
 
-# Copy the rest of the repo
+WORKDIR /app/services/willys-service
+RUN npm install --omit=dev
+
+# 2) Copy the rest of the repo so scripts/, etc. are available
+WORKDIR /app
 COPY . .
 
-# Switch to service dir
+# 3) Run the willys-service server from its own folder
 WORKDIR /app/services/willys-service
-
-EXPOSE 8080
-
-# Start the server (dotenv is installed in service package)
 CMD ["node", "-r", "dotenv/config", "server.js"]
