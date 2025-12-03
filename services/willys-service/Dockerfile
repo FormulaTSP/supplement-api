@@ -11,6 +11,9 @@ COPY services/willys-service/package*.json ./services/willys-service/
 WORKDIR /app/services/willys-service
 RUN npm install --omit=dev
 
+# Install Playwright system deps (Chromium) inside the image
+RUN npx playwright install-deps chromium && npx playwright install chromium
+
 # 2) Copy the rest of the repo so scripts/, etc. are available
 WORKDIR /app
 COPY . .
