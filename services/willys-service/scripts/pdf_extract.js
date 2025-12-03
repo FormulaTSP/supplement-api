@@ -1,33 +1,13 @@
 // services/willys-service/scripts/pdf_extract.js
-import PDFParser from "pdf2json";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-async function extractWithPdf2Json(buffer) {
-  return await new Promise((resolve, reject) => {
-    const parser = new PDFParser();
-
-    parser.on("pdfParser_dataError", (err) => {
-      reject(err?.parserError || err);
-    });
-
-    parser.on("pdfParser_dataReady", () => {
-      try {
-        const text = parser.getRawTextContent();
-        resolve(text || "");
-      } catch (e) {
-        reject(e);
-      }
-    });
-
-    parser.parseBuffer(buffer);
-  });
-}
 
 async function extractWithPdfJs(buffer) {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const fontPath = path.join(__dirname, "../../node_modules/pdfjs-dist/standard_fonts/");
+  // In the container, __dirname is /app/services/willys-service/scripts
+  // Fonts live in /app/services/willys-service/node_modules/pdfjs-dist/standard_fonts
+  const fontPath = path.join(__dirname, "../node_modules/pdfjs-dist/standard_fonts/");
 
   const data = new Uint8Array(buffer);
   const loadingTask = pdfjs.getDocument({
@@ -68,20 +48,13 @@ async function extractWithPdfJs(buffer) {
 }
 
 /**
- * Extracts text from a PDF buffer with fallback:
- * 1) pdf2json
- * 2) pdfjs-dist (legacy)
+ * Extracts text from a PDF buffer using pdfjs-dist (fonts resolved).
  */
 export async function extractPdfText(buffer) {
   try {
-    return await extractWithPdf2Json(buffer);
+    return await extractWithPdfJs(buffer);
   } catch (e) {
-    console.warn("[pdf-extract] pdf2json failed, falling back to pdfjs:", e?.message || e);
-    try {
-      return await extractWithPdfJs(buffer);
-    } catch (e2) {
-      console.warn("[pdf-extract] pdfjs fallback failed:", e2?.message || e2);
-      return "";
-    }
+    console.warn("[pdf-extract] pdfjs failed:", e?.message || e);
+    return "";
   }
 }
