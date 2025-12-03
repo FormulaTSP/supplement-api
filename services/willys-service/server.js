@@ -5,6 +5,9 @@ import { chromium, request } from "playwright";
 import path from "node:path";
 import fs from "node:fs";
 import fetch from "node-fetch"; // for calling Supabase edge function
+import crypto from "node:crypto";
+import { extractPdfText } from "../../scripts/pdf_extract.js";
+import { parseReceiptText } from "./lib/willys_parse.js";
 
 // ---------- constants ----------
 const PORT = Number(process.env.PORT || process.env.WILLYS_SVC_PORT || 3031);
@@ -23,6 +26,9 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const WILLYS_SESSION_TABLE =
   process.env.WILLYS_SESSION_TABLE || "willys_sessions";
 const GROCERY_TABLE = process.env.GROCERY_TABLE || "grocery_data";
+const DIRECT_INGEST_IMMEDIATE = /^true$/i.test(
+  String(process.env.WILLYS_DIRECT_INGEST_IMMEDIATE || "false")
+);
 
 // How far back to fetch receipts if caller doesn’t specify
 const DEFAULT_RECEIPT_MONTHS = Number(
@@ -481,6 +487,122 @@ async function fetchReceiptBodies({ storageState = null, sessionPath = null }, d
 
   await ctx.dispose();
   return out;
+}
+
+// ---------- direct ingest into Supabase grocery_data (and optional raw table) ----------
+async function upsertIntoGrocery({
+  supabaseUserId,
+  receipts,
+  rawTable = null,
+  groceryTable = GROCERY_TABLE,
+}) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  }
+  if (!Array.isArray(receipts) || receipts.length === 0) {
+    return { inserted: 0 };
+  }
+
+  const now = new Date().toISOString();
+  const rawRows = [];
+  const groceryRows = [];
+
+  for (const r of receipts) {
+    let raw_text = null;
+    let parsed = null;
+
+    if (r?.content_base64 && /pdf/i.test(r.content_type || "")) {
+      try {
+        const buf = Buffer.from(r.content_base64, "base64");
+        raw_text = await extractPdfText(buf);
+        parsed = parseReceiptText(raw_text);
+      } catch (e) {
+        console.warn(
+          `[direct-ingest] pdf parse failed for ${r.reference || "?"}:`,
+          e?.message || e
+        );
+      }
+    }
+
+    if (rawTable) {
+      rawRows.push({
+        user_id: supabaseUserId,
+        reference: r.reference || null,
+        store_name: r.store_name || null,
+        receipt_date: r.receipt_date || null,
+        digitalreceipt_url: r.digitalreceipt_url || null,
+        content_type: r.content_type || null,
+        byte_length: r.byte_length || null,
+        raw_pdf_base64: r.content_base64 || null,
+        raw_text,
+        parsed_items: parsed?.items || null,
+        parsed_item_count: parsed?.itemCount ?? null,
+        parsed_total: parsed?.total ?? null,
+        created_at: now,
+      });
+    }
+
+    if (groceryTable) {
+      const gid =
+        r.reference ||
+        crypto.createHash("sha1").update(`${supabaseUserId}:${r.digitalreceipt_url || ""}`).digest("hex");
+      groceryRows.push({
+        id: gid,
+        user_id: supabaseUserId,
+        store: r.store_name || "Willys",
+        store_name: r.store_name || "Willys",
+        receipt_date: r.receipt_date || null,
+        products: parsed?.items || [],
+        raw_receipt_text: raw_text || null,
+        parsed_total: parsed?.total ?? null,
+        parsed_item_count: parsed?.itemCount ?? null,
+        connection_type: "willys",
+        reference: r.reference || null,
+        created_at: now,
+      });
+    }
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    apikey: SUPABASE_SERVICE_ROLE_KEY,
+    Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    Prefer: "resolution=merge-duplicates",
+  };
+
+  if (rawTable && rawRows.length) {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/${rawTable}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(rawRows),
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      throw new Error(
+        `Raw ingest failed (${rawTable}): ${resp.status} ${t.slice(0, 200)}`
+      );
+    }
+  }
+
+  if (groceryTable && groceryRows.length) {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/${groceryTable}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(groceryRows),
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      throw new Error(
+        `Grocery ingest failed (${groceryTable}): ${resp.status} ${t.slice(0, 200)}`
+      );
+    }
+  }
+
+  return {
+    inserted: groceryRows.length || rawRows.length,
+    grocery_count: groceryRows.length,
+    raw_count: rawRows.length,
+  };
 }
 
 // ---------- per-user helpers ----------
@@ -1061,17 +1183,35 @@ app.post("/willys/fetch-receipts-with-content", async (req, res) => {
       descriptors
     );
 
+    const directIngest = DIRECT_INGEST_IMMEDIATE || !!req.body?.direct_ingest;
+
     let supabaseResponse = null;
-    try {
-      supabaseResponse = await forwardReceiptsWithContentToSupabase({
-        supabaseUserId: supabase_user_id,
-        receipts,
-      });
-    } catch (err) {
-      console.warn(
-        "[willys-service] Forward with content failed (edge function may not be deployed):",
-        err?.message || err
-      );
+    if (!directIngest) {
+      try {
+        supabaseResponse = await forwardReceiptsWithContentToSupabase({
+          supabaseUserId: supabase_user_id,
+          receipts,
+        });
+      } catch (err) {
+        console.warn(
+          "[willys-service] Forward with content failed (edge function may not be deployed):",
+          err?.message || err
+        );
+      }
+    }
+
+    let ingestResult = null;
+    if (directIngest) {
+      try {
+        ingestResult = await upsertIntoGrocery({
+          supabaseUserId: supabase_user_id,
+          receipts,
+          rawTable: process.env.WILLYS_DIRECT_INGEST_TABLE || null,
+          groceryTable: GROCERY_TABLE,
+        });
+      } catch (e) {
+        console.warn("[willys-service] Direct ingest failed:", e?.message || e);
+      }
     }
 
     return res.json({
@@ -1081,6 +1221,7 @@ app.post("/willys/fetch-receipts-with-content", async (req, res) => {
       meta: { fromDate, toDate },
       forwarded: Boolean(supabaseResponse),
       supabase: supabaseResponse || null,
+      ingested: ingestResult || null,
       receipts: supabaseResponse ? undefined : receipts,
     });
   } catch (err) {
