@@ -6,7 +6,7 @@ import path from "node:path";
 import fs from "node:fs";
 import fetch from "node-fetch"; // for calling Supabase edge function
 import crypto from "node:crypto";
-import { extractPdfText } from "../../scripts/pdf_extract.js";
+import { extractPdfText } from "./scripts/pdf_extract.js";
 import { parseReceiptText } from "./lib/willys_parse.js";
 
 // ---------- constants ----------

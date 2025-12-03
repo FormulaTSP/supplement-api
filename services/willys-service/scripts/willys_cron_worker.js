@@ -7,7 +7,7 @@
 
 import "dotenv/config";
 import fetch from "node-fetch";
-import { extractPdfText } from "../../scripts/pdf_extract.js";
+import { extractPdfText } from "./pdf_extract.js";
 import { parseReceiptText } from "../lib/willys_parse.js";
 import crypto from "node:crypto";
 
