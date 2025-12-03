@@ -18,8 +18,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_WILLYS_FUNCTION =
   process.env.SUPABASE_WILLYS_FUNCTION || "store-willys-receipts";
 const SUPABASE_WILLYS_FUNCTION_WITH_CONTENT =
-  process.env.SUPABASE_WILLYS_FUNCTION_WITH_CONTENT ||
-  "store-willys-receipts-with-content";
+  process.env.SUPABASE_WILLYS_FUNCTION_WITH_CONTENT || null;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const WILLYS_SESSION_TABLE =
   process.env.WILLYS_SESSION_TABLE || "willys_sessions";
@@ -396,6 +395,7 @@ async function forwardReceiptsToSupabase({ supabaseUserId, receipts }) {
 
 // Helper to forward receipts with content to a dedicated edge function
 async function forwardReceiptsWithContentToSupabase({ supabaseUserId, receipts }) {
+  if (!SUPABASE_WILLYS_FUNCTION_WITH_CONTENT) return null;
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY in env");
   }
