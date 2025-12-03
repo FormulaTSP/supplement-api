@@ -22,6 +22,7 @@ const SUPABASE_WILLYS_FUNCTION_WITH_CONTENT =
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const WILLYS_SESSION_TABLE =
   process.env.WILLYS_SESSION_TABLE || "willys_sessions";
+const GROCERY_TABLE = process.env.GROCERY_TABLE || "grocery_data";
 
 // How far back to fetch receipts if caller doesn’t specify
 const DEFAULT_RECEIPT_MONTHS = Number(
@@ -1093,4 +1094,39 @@ app.post("/willys/fetch-receipts-with-content", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`[willys-service] Running → http://localhost:${PORT}`);
+});
+
+// --- Lightweight read endpoint for frontend (grocery_data) ---
+app.get("/willys/receipts", async (req, res) => {
+  const userId = resolveUserId(req);
+  if (!userId) {
+    return res.status(400).json({ ok: false, error: "supabase_user_id is required" });
+  }
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ ok: false, error: "Missing Supabase service role env" });
+  }
+  try {
+    const url =
+      `${SUPABASE_URL}/rest/v1/${GROCERY_TABLE}` +
+      `?user_id=eq.${encodeURIComponent(userId)}` +
+      `&select=receipt_date,store_name,store,products,parsed_total,parsed_item_count,reference` +
+      `&order=receipt_date.desc`;
+
+    const resp = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+    });
+    const text = await resp.text();
+    if (!resp.ok) {
+      return res
+        .status(502)
+        .json({ ok: false, error: `Supabase query failed: ${resp.status} ${text.slice(0, 200)}` });
+    }
+    const data = text ? JSON.parse(text) : [];
+    return res.json({ ok: true, receipts: data });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e?.message || String(e) });
+  }
 });

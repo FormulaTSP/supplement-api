@@ -7,6 +7,9 @@
 
 import "dotenv/config";
 import fetch from "node-fetch";
+import { extractPdfText } from "../../scripts/pdf_extract.js";
+import { parseReceiptText } from "../lib/willys_parse.js";
+import crypto from "node:crypto";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,6 +25,7 @@ const DIRECT_INGEST = /^true$/i.test(
 );
 const DIRECT_INGEST_TABLE =
   process.env.WILLYS_DIRECT_INGEST_TABLE || "willys_receipts_raw";
+const GROCERY_TABLE = process.env.GROCERY_TABLE || "grocery_data";
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error(
@@ -95,17 +99,60 @@ async function asyncPool(limit, items, worker) {
 }
 
 async function upsertReceiptsDirect(userId, receipts) {
-  const rows = receipts.map((r) => ({
-    user_id: userId,
-    reference: r.reference || null,
-    store_name: r.store_name || null,
-    receipt_date: r.receipt_date || null,
-    digitalreceipt_url: r.digitalreceipt_url || null,
-    content_type: r.content_type || null,
-    byte_length: r.byte_length || null,
-    content_base64: r.content_base64 || null,
-    created_at: new Date().toISOString(),
-  }));
+  const rows = [];
+  const groceryRows = [];
+
+  for (const r of receipts) {
+    let raw_text = null;
+    let parsed = null;
+    if (r?.content_base64 && /pdf/i.test(r.content_type || "")) {
+      try {
+        const buf = Buffer.from(r.content_base64, "base64");
+        raw_text = await extractPdfText(buf);
+        parsed = parseReceiptText(raw_text);
+      } catch (e) {
+        console.warn(
+          `[direct-ingest] pdf parse failed for ${r.reference || "?"}:`,
+          e?.message || e
+        );
+      }
+    }
+
+    rows.push({
+      user_id: userId,
+      reference: r.reference || null,
+      store_name: r.store_name || null,
+      receipt_date: r.receipt_date || null,
+      digitalreceipt_url: r.digitalreceipt_url || null,
+      content_type: r.content_type || null,
+      byte_length: r.byte_length || null,
+      raw_pdf_base64: r.content_base64 || null,
+      raw_text,
+      parsed_items: parsed?.items || null,
+      parsed_item_count: parsed?.itemCount ?? null,
+      parsed_total: parsed?.total ?? null,
+      created_at: new Date().toISOString(),
+    });
+
+    // Map into grocery_data schema
+    const gid =
+      r.reference ||
+      crypto.createHash("sha1").update(`${userId}:${r.digitalreceipt_url || ""}`).digest("hex");
+
+    groceryRows.push({
+      id: gid,
+      user_id: userId,
+      store: r.store_name || "Willys",
+      store_name: r.store_name || "Willys",
+      receipt_date: r.receipt_date || null,
+      products: parsed?.items || [],
+      raw_receipt_text: raw_text || null,
+      parsed_total: parsed?.total ?? null,
+      parsed_item_count: parsed?.itemCount ?? null,
+      connection_type: "willys",
+      created_at: new Date().toISOString(),
+    });
+  }
 
   const resp = await fetch(`${SUPABASE_URL}/rest/v1/${DIRECT_INGEST_TABLE}`, {
     method: "POST",
@@ -130,6 +177,31 @@ async function upsertReceiptsDirect(userId, receipts) {
   console.log(
     `[direct-ingest] user=${userId} upserted=${rows.length} into ${DIRECT_INGEST_TABLE}`
   );
+
+  if (groceryRows.length) {
+    const resp2 = await fetch(`${SUPABASE_URL}/rest/v1/${GROCERY_TABLE}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        Prefer: "resolution=merge-duplicates",
+      },
+      body: JSON.stringify(groceryRows),
+    });
+    if (!resp2.ok) {
+      const t = await resp2.text();
+      throw new Error(
+        `[direct-ingest] Failed to upsert ${groceryRows.length} rows into ${GROCERY_TABLE}: ${resp2.status} ${t.slice(
+          0,
+          200
+        )}`
+      );
+    }
+    console.log(
+      `[direct-ingest] user=${userId} upserted=${groceryRows.length} into ${GROCERY_TABLE}`
+    );
+  }
 }
 
 async function main() {
