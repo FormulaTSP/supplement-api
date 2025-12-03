@@ -543,11 +543,7 @@ async function upsertIntoGrocery({
     }
 
     if (groceryTable) {
-      const gid =
-        r.reference ||
-        crypto.createHash("sha1").update(`${supabaseUserId}:${r.digitalreceipt_url || ""}`).digest("hex");
       groceryRows.push({
-        id: gid,
         user_id: supabaseUserId,
         store: r.store_name || "Willys",
         store_name: r.store_name || "Willys",
