@@ -620,6 +620,265 @@ async function tryBankIdTokenFlow({
   }
 }
 
+// ---------- HTTP-only BankID flow (no page) ----------
+async function createHttpLoginContext({ storageState = null, sessionPath = null } = {}) {
+  return await request.newContext({
+    baseURL: "https://www.willys.se",
+    storageState: storageState || sessionPath || undefined,
+    extraHTTPHeaders: {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+      referer: "https://www.willys.se/anvandare/inloggning",
+      "user-agent": UA_CHROME,
+    },
+  });
+}
+
+async function extractCsrfToken(ctx, onEvent) {
+  // 1) Hit the login page so we get JSESSIONID, AWSALB, etc.
+  try {
+    await ctx.get("/anvandare/inloggning");
+  } catch {
+    // not fatal, cookies might still be fine
+  }
+
+  // 2) Call the same endpoint the browser uses
+  const resp = await ctx.get("/axfood/rest/csrf-token", {
+    headers: {
+      accept: "*/*",
+      "content-type": "application/json",
+    },
+  });
+
+  const raw = (await resp.text()).trim();
+  const ct = (resp.headers()["content-type"] || "").toLowerCase();
+
+  if (!resp.ok() || !raw) {
+    onEvent?.("log", {
+      msg: `HTTP flow: /csrf-token failed status=${resp.status()} body=${raw.slice(
+        0,
+        120
+      )}`,
+    });
+    return null;
+  }
+
+  // If they gave us HTML, this is NOT a token (likely redirect / error)
+  if (
+    ct.includes("text/html") ||
+    raw.startsWith("<!DOCTYPE") ||
+    raw.toLowerCase().startsWith("<html")
+  ) {
+    onEvent?.("log", {
+      msg: `HTTP flow: /csrf-token returned HTML instead of token, status=${resp.status()} body=${raw.slice(
+        0,
+        120
+      )}`,
+    });
+    return null;
+  }
+
+  // Body is something like "2d8ecb57-76df-401e-9de8-98bedc838a3b"
+  // Strip surrounding quotes if present
+  let token = raw;
+  if (
+    (token.startsWith('"') && token.endsWith('"')) ||
+    (token.startsWith("'") && token.endsWith("'"))
+  ) {
+    token = token.slice(1, -1);
+  }
+
+  onEvent?.("log", {
+    msg: `HTTP flow: /csrf-token ok, raw=${raw.slice(
+      0,
+      40
+    )}, token=${token.slice(0, 40)}`,
+  });
+
+  return token;
+}
+
+async function tryBankIdHttpFlow({
+  userId,
+  sessionPath,
+  storageState,
+  timeoutMs = 60_000,
+  onEvent,
+}) {
+  const ctx = await createHttpLoginContext({ storageState, sessionPath });
+  const startedAt = Date.now();
+
+  try {
+    // --- 1) Get CSRF token same way as browser ---
+    const csrfToken = await extractCsrfToken(ctx, onEvent);
+    if (!csrfToken) {
+      onEvent?.("log", { msg: "HTTP flow: could not obtain CSRF token" });
+      return { ok: false, error: "missing csrf token" };
+    }
+
+    const state = await ctx.storageState().catch(() => null);
+    const cookies = state?.cookies?.map((c) => `${c.name}=${c.value}`) || [];
+    onEvent?.("log", {
+      msg: `HTTP flow: cookies after /csrf-token: ${cookies.join("; ")}`,
+    });
+
+    const reqId = crypto.randomUUID();
+
+    // --- 2) Headers: mimic browser request as closely as needed ---
+    const commonHeaders = {
+      accept: "application/json, text/plain, */*",
+      "accept-language": "sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7",
+      "content-type": "application/json",
+      "x-csrf-token": csrfToken, // main CSRF header
+      // Optional helper header; can be kept or removed
+      "x-xsrf-token": csrfToken,
+      origin: "https://www.willys.se",
+      referer: "https://www.willys.se/anvandare/inloggning",
+      "user-agent": UA_CHROME,
+      "x-request-id": reqId,
+      "x-newrelic-id": "VQcCVVdaDhAHUFFTDwQAVFc=",
+      // IMPORTANT: we do NOT set Cookie manually; Playwright sends context cookies.
+    };
+
+    // --- 3) Start BankID auth (same as clicking the big red button) ---
+    const authResp = await ctx.post("/axfood/rest/checkout/bankid/auth", {
+      headers: commonHeaders,
+      data: { mobile: true, generateQrData: true },
+    });
+
+    const authText = (await authResp.text()).trim();
+    let authJson = null;
+    try {
+      authJson = JSON.parse(authText);
+    } catch {
+      /* ignore parse errors */
+    }
+
+    onEvent?.("log", {
+      msg: `HTTP flow: auth status=${authResp.status()}, body=${authText.slice(
+        0,
+        200
+      )}`,
+    });
+
+    if (!authResp.ok()) {
+      return {
+        ok: false,
+        error: `auth HTTP ${authResp.status()} ${authText.slice(0, 200)}`,
+      };
+    }
+
+    const orderRef =
+      authJson?.orderRef || authJson?.orderRefId || authJson?.orderRefNo;
+    onEvent?.("log", { msg: `HTTP flow: auth ok, orderRef=${orderRef}` });
+
+    // --- 3) Start QR refresh loop in parallel ---
+    let final = null;
+    let stopQr = false;
+
+    const qrLoop = (async () => {
+      while (!stopQr && Date.now() - startedAt < timeoutMs) {
+        try {
+          const qrResp = await ctx.post("/axfood/rest/checkout/bankid/qr", {
+            headers: { ...commonHeaders, "content-length": "0" },
+          });
+
+          const qrText = (await qrResp.text()).trim();
+          onEvent?.("log", {
+            msg: `HTTP flow: qr status=${qrResp.status()}, body=${qrText.slice(
+              0,
+              120
+            )}`,
+          });
+
+          if (qrResp.ok() && /^bankid\./i.test(qrText)) {
+            const dataUrl = await qrcode.toDataURL(qrText);
+            onEvent?.("qr-image", { image: dataUrl });
+          } else {
+            // if QR fails occasionally, just log and keep trying
+            onEvent?.("log", {
+              msg: `HTTP flow: qr not ok, status=${qrResp.status()}`,
+            });
+          }
+        } catch (e) {
+          onEvent?.("log", {
+            msg: `HTTP flow: qr loop error: ${e?.message || String(e)}`,
+          });
+        }
+
+        await sleep(1500); // ~same cadence as web UI
+      }
+    })();
+
+    // --- 4) Poll collect-login until COMPLETE or timeout ---
+    while (Date.now() - startedAt < timeoutMs) {
+      const cResp = await ctx.post("/axfood/rest/checkout/bankid/collect-login", {
+        headers: commonHeaders,
+        data: { orderRef, rememberMe: "true" },
+      });
+
+      const status = await cResp.json().catch(() => null);
+
+      onEvent?.("log", {
+        msg: `HTTP flow: collect status=${cResp.status()}, rawStatus=${JSON.stringify(
+          status
+        ).slice(0, 200)}`,
+      });
+
+      if (status?.status === "COMPLETE") {
+        final = { ok: true, result: status };
+        break;
+      }
+
+      if (status?.status && status?.hintCode) {
+        onEvent?.("collect", {
+          status: status.status,
+          hintCode: status.hintCode,
+        });
+      }
+
+      await sleep(800);
+    }
+
+    // stop QR loop and wait for it to finish
+    stopQr = true;
+    try {
+      await qrLoop;
+    } catch {
+      // ignore errors from QR loop on shutdown
+    }
+
+    if (!final) {
+      return { ok: false, error: "Timed out waiting for BankID COMPLETE" };
+    }
+
+    // --- 5) Persist session for later receipt fetches ---
+    const stateObj = await ctx.storageState();
+    if (sessionPath) {
+      await safe(
+        () => fs.mkdirSync(path.dirname(sessionPath), { recursive: true }),
+        "ensureSessionDir"
+      );
+      await safe(
+        () => fs.writeFileSync(sessionPath, JSON.stringify(stateObj), "utf8"),
+        "saveSessionFileHttp"
+      );
+    }
+    if (userId && stateObj) {
+      await saveSessionToStore(userId, stateObj);
+    }
+
+    return final;
+  } catch (e) {
+    onEvent?.("log", {
+      msg: `HTTP flow: threw error: ${e?.message || String(e)}`,
+    });
+    return { ok: false, error: e?.message || String(e) };
+  } finally {
+    await ctx.dispose();
+  }
+}
+
 // ---------- direct ingest into Supabase grocery_data (and optional raw table) ----------
 async function upsertIntoGrocery({
   supabaseUserId,
@@ -1045,20 +1304,25 @@ async function runBankIdLogin({
 
   try {
     const storageState = await getStorageStateForUser(userId, sessionPath);
-    // Fast path: only try token flow if we actually have a session
-    if (storageState) {
-      const tokenResult = await tryBankIdTokenFlow({
-        userId,
-        sessionPath,
-        storageState,
-        timeoutMs: Math.min(timeoutMs, 60_000),
-        onEvent,
-      });
-      if (tokenResult?.ok) {
-        onEvent?.("done", { ok: true, result: tokenResult.result });
-        return tokenResult;
-      }
+    // Fast path: HTTP-only BankID flow first
+    const httpResult = await tryBankIdHttpFlow({
+      userId,
+      sessionPath,
+      storageState,
+      timeoutMs: Math.min(timeoutMs, 60_000),
+      onEvent,
+    });
+    if (httpResult?.ok) {
+      onEvent?.("done", { ok: true, result: httpResult.result });
+      return httpResult;
     }
+    // NEW: log why HTTP flow failed
+    log?.(
+      `HTTP-only BankID flow failed: ${
+        httpResult?.error || "no error message"
+      }`
+    );
+    log?.("HTTP-only BankID flow failed, falling back to full browser...");
 
     log?.("Obtaining shared Playwright browser/context...");
     browser = await getSharedBrowser();
