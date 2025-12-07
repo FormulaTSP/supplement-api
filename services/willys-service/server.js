@@ -1100,6 +1100,7 @@ app.get("/willys/login-stream/qr", async (req, res) => {
 
   const userId = resolveUserId(req);
   const sessionPath = sessionPathFor(userId);
+  const headless = req.query?.headless === "false" ? false : true;
 
   const end = () => {
     try {
@@ -1108,7 +1109,7 @@ app.get("/willys/login-stream/qr", async (req, res) => {
   };
 
   const result = await runBankIdLogin({
-    headless: true,
+    headless,
     userId,
     sessionPath,
     onEvent: (evt, data) => {
@@ -1129,8 +1130,9 @@ app.post("/willys/login", async (req, res) => {
   const timeoutMs = Number(req.body?.timeoutMs ?? 180_000);
   const userId = resolveUserId(req);
   const sessionPath = sessionPathFor(userId);
+  const headless = req.query?.headless === "false" || req.body?.headless === false ? false : true;
   const r = await runBankIdLogin({
-    headless: true,
+    headless,
     timeoutMs,
     userId,
     sessionPath,

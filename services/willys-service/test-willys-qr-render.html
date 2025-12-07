@@ -1,0 +1,100 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Willys - QR Login Tester (Render)</title>
+<style>
+  body { background:#111; color:#eee; font:16px system-ui; padding:24px; max-width:960px; margin:0 auto; }
+  h1 { margin-top:0; }
+  #qr {
+    width:360px; height:360px; display:block; background:#fff; border-radius:12px;
+    image-rendering: pixelated; object-fit: contain; margin-bottom:16px; box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+  #log { white-space:pre-wrap; font:14px ui-monospace,Consolas,monospace;
+         background:#1b1b1b; padding:12px; border-radius:10px; min-height:140px; }
+  #note { margin-bottom:16px; color:#bbb; font-size:15px; }
+</style>
+
+<h1>Willys - BankID QR (Render)</h1>
+<div id="note">
+  1) Uses the Render endpoints directly.<br>
+  2) Enter the Supabase user id below, click Connect, then scan the QR with BankID.
+</div>
+
+<label style="display:block;margin:10px 0 6px;">Supabase user id:</label>
+<input id="uid" style="width:360px; padding:8px; border-radius:6px; border:1px solid #333; background:#1c1c1c; color:#eee;"
+       value="ce56df32-1d45-4ec8-87ac-4736f76b5ec6" />
+<button id="connect" style="margin-left:8px; padding:8px 12px; border:1px solid #444; background:#2b2b2b; color:#eee; border-radius:6px; cursor:pointer;">
+  Connect
+</button>
+<label style="margin-left:12px; user-select:none;">
+  <input type="checkbox" id="headless" checked style="vertical-align:middle;"> Headless
+</label>
+
+<div style="margin-top:16px;">
+  <label style="display:block;margin:10px 0 6px;">Months back (for fetch):</label>
+  <input id="months" type="number" value="12" min="1" max="24" style="width:120px; padding:8px; border-radius:6px; border:1px solid #333; background:#1c1c1c; color:#eee;" />
+  <button id="fetchNow" style="margin-left:8px; padding:8px 12px; border:1px solid #444; background:#2b2b2b; color:#eee; border-radius:6px; cursor:pointer;">
+    Fetch + ingest now
+  </button>
+</div>
+
+<img id="qr" alt="QR" />
+<div id="log"></div>
+
+<script>
+  const logEl = document.getElementById('log');
+  const qrEl  = document.getElementById('qr');
+  const uidEl = document.getElementById('uid');
+  const connectBtn = document.getElementById('connect');
+  const fetchBtn = document.getElementById('fetchNow');
+  const monthsEl = document.getElementById('months');
+  const headlessEl = document.getElementById('headless');
+  const log = (m) => { const t = new Date().toLocaleTimeString(); logEl.textContent += `[${t}] ${m}\n`; };
+
+  // Render endpoints
+  const ES_URL = 'https://willys-service.onrender.com/willys/login-stream/qr';
+  const FETCH_URL = 'https://willys-service.onrender.com/willys/fetch-receipts-with-content';
+  let es = null;
+
+  function connect() {
+    if (es) es.close();
+    logEl.textContent = '';
+    const uid = uidEl.value.trim();
+    if (!uid) { log('Please enter supabase_user_id'); return; }
+    const url = `${ES_URL}?supabase_user_id=${encodeURIComponent(uid)}&headless=${headlessEl.checked ? "true" : "false"}`;
+    es = new EventSource(url);
+
+    es.addEventListener('open', () => log('SSE connected'));
+    es.addEventListener('log', (e) => { try { log(JSON.parse(e.data).msg); } catch { log(e.data); } });
+    es.addEventListener('qr-image', (e) => { const { image } = JSON.parse(e.data); qrEl.src = image; });
+    es.addEventListener('collect', (e) => { const data = JSON.parse(e.data); log(`collect: ${data.status}${data.hintCode ? ' ('+data.hintCode+')' : ''}`); });
+    es.addEventListener('done', (e) => { log('done: ' + e.data); es.close(); });
+    es.addEventListener('error', (e) => { log('ERROR: ' + (e.data || 'event error')); es.close(); });
+  }
+
+  async function fetchNow() {
+    const uid = uidEl.value.trim();
+    if (!uid) { log('Please enter supabase_user_id'); return; }
+    const months = Math.max(1, Number(monthsEl.value || 12));
+    log(`POST ${FETCH_URL} (months=${months}, direct_ingest=true)`);
+    try {
+      const resp = await fetch(FETCH_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          supabase_user_id: uid,
+          months,
+          direct_ingest: true
+        })
+      });
+      const data = await resp.json();
+      log(`status ${resp.status}: descriptors=${data.descriptorsCount} receipts=${data.receiptsCount} forwarded=${data.forwarded} ingested=${data.ingested ? JSON.stringify(data.ingested) : 'null'}`);
+    } catch (e) {
+      log('fetch error: ' + (e?.message || e));
+    }
+  }
+
+  connectBtn.addEventListener('click', connect);
+  fetchBtn.addEventListener('click', fetchNow);
+  // auto-connect on load with the prefilled id
+  connect();
+</script>
