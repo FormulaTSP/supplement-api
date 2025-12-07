@@ -926,6 +926,9 @@ async function runBankIdLogin({
     browser = await getSharedBrowser();
     context = await browser.newContext({
       viewport: { width: 420, height: 640 },
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      locale: "sv-SE",
     });
 
     // Speed up: block heavy assets and seed consent to avoid cookie banners
