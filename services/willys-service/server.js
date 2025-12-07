@@ -1185,7 +1185,7 @@ async function runBankIdLogin({
       }
     }
 
-    await safe(() => browser.close(), "closeBrowser");
+    await safe(() => context?.close(), "closeContext");
     onEvent?.(
       "done",
       final?.ok ? { ok: true, result: final.result } : { ok: false }
@@ -1493,6 +1493,10 @@ app.get("/willys/receipts", async (req, res) => {
     return res.status(500).json({ ok: false, error: e?.message || String(e) });
   }
 });
+
+
+
+
 
 
 
