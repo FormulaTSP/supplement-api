@@ -1014,6 +1014,11 @@ async function runBankIdLogin({
 } = {}) {
   let browser, context, page;
   const log = (m) => onEvent?.("log", { msg: m });
+  const t0 = Date.now();
+  const mark = (label) => {
+    const ms = Date.now() - t0;
+    log?.(`${label} (${ms}ms)`);
+  };
 
   try {
     const storageState = await getStorageStateForUser(userId, sessionPath);
@@ -1064,8 +1069,26 @@ async function runBankIdLogin({
       "seedConsentLS"
     );
 
-    // For debugging Render chunk failures, allow all requests (no blocking).
+    // Allow all willys assets (JS/CSS/fonts/images) but block obvious third-party trackers and heavy media elsewhere.
     await context.route("**/*", async (route) => {
+      const url = route.request().url();
+      const rt = route.request().resourceType();
+      const isWillys = /https?:\/\/([^.]+\.)?willys\.se/i.test(url);
+
+      if (isWillys) {
+        return route.continue().catch(() => {});
+      }
+
+      // Drop known trackers/analytics CDNs that slow us down.
+      if (/clarity\.ms|sitegainer\.com|hotjar|googletagmanager|google-analytics\.com/i.test(url)) {
+        return route.abort().catch(() => {});
+      }
+
+      // Drop media/large streaming resources.
+      if (rt === "media") {
+        return route.abort().catch(() => {});
+      }
+
       return route.continue().catch(() => {});
     });
 
@@ -1073,10 +1096,10 @@ async function runBankIdLogin({
     attachNetworkTaps(page, (evt, data) => onEvent?.(evt, data));
 
     await page.goto(LOGIN_URL, { waitUntil: "domcontentloaded" });
-    log?.("Opened /anvandare/inloggning");
+    mark("Opened /anvandare/inloggning");
 
     await closeCookies(page);
-    log?.("Cookies: any visible banner has been handled/hidden");
+    mark("Cookies: any visible banner has been handled/hidden");
 
     const switched = await switchToMobiltBankID(page);
     if (!switched) {
@@ -1085,7 +1108,7 @@ async function runBankIdLogin({
       });
       throw new Error("BankID tab not found");
     }
-    log?.("Switched to Mobilt BankID");
+    mark("Switched to Mobilt BankID");
 
     const clicked = await clickToShowQR2(page);
     if (!clicked) {
@@ -1093,7 +1116,7 @@ async function runBankIdLogin({
         msg: "Could not find QR/annan enhet or 'Logga in med Mobilt BankID' button",
       });
     } else {
-      log?.("Clicked login/QR CTA");
+      mark("Clicked login/QR CTA");
     }
 
     const hint = await waitForQrHints(page, 15_000);
