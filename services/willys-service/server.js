@@ -1064,11 +1064,14 @@ async function runBankIdLogin({
       "seedConsentLS"
     );
 
-    // Allow images/styles/fonts so the dialog looks identical to production.
+    // Allow willys assets; block obvious trackers/analytics and media streams.
     await context.route("**/*", async (route) => {
       const rt = route.request().resourceType();
-      // Only skip obvious media streams; keep images for the BankID logo.
-      if (rt === "media") {
+      const url = route.request().url();
+      if (
+        /clarity\.ms|sitegainer\.com|hotjar|analytics\.willys\.se/i.test(url) ||
+        rt === "media"
+      ) {
         return route.abort().catch(() => {});
       }
       return route.continue().catch(() => {});
@@ -1490,3 +1493,6 @@ app.get("/willys/receipts", async (req, res) => {
     return res.status(500).json({ ok: false, error: e?.message || String(e) });
   }
 });
+
+
+
