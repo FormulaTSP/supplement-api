@@ -54,8 +54,12 @@ async function getWarmContext(userId, storageState, headless) {
   if (!userId || headless === false) return null; // don't cache visible runs
   const existing = warmContexts.get(userId);
   if (existing) {
-    existing.lastUsed = Date.now();
-    return existing.context;
+    // Avoid reusing a closed context
+    if (!existing.context.isClosed()) {
+      existing.lastUsed = Date.now();
+      return existing.context;
+    }
+    warmContexts.delete(userId);
   }
   const browser = await getSharedBrowser();
   const ctx = await browser.newContext({
@@ -797,23 +801,47 @@ async function closeCookies(page) {
 async function switchToMobiltBankID(page, timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
 
+  const ctaPatterns = [
+    /Logga in med Mobilt BankID/i,
+    /Logga in med mobilt BankID/i,
+    /Logga in med BankID/i,
+  ];
+
+  const tabPatterns = [/Mobilt\s*BankID/i, /BankID/i];
+
   while (Date.now() < deadline) {
     const dlg = page.locator('div[role="dialog"]').first();
     const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
+    // Check for CTA already visible
+    for (const re of ctaPatterns) {
+      try {
+        const btn = scope
+          .locator('button, [role="button"], a')
+          .filter({ hasText: re })
+          .first();
+        if (await btn.isVisible({ timeout: 200 }).catch(() => false)) {
+          return true;
+        }
+      } catch {}
+    }
+
+    // Try to click a BankID tab or toggle
+    let clickedTab = false;
     try {
       const tab = scope
         .locator('button, [role="tab"], [role="button"], a')
-        .filter({ hasText: /Mobilt\s*BankID/i })
+        .filter({ hasText: /BankID/i })
         .first();
-      if (await tab.isVisible({ timeout: 500 }).catch(() => false)) {
+      if (await tab.isVisible({ timeout: 200 }).catch(() => false)) {
         await tab.click({ timeout: 1000 });
-        return true;
+        clickedTab = true;
       }
     } catch {}
 
-    const ok = await clickAnyText(scope, [/^Mobilt\s*BankID$/i, /Mobilt\s*BankID/i]);
-    if (ok) return true;
+    if (!clickedTab) {
+      clickedTab = await clickAnyText(scope, tabPatterns);
+    }
 
     try {
       await page.waitForTimeout(400);
@@ -1041,13 +1069,15 @@ async function runBankIdLogin({
       "seedConsentLS"
     );
 
-    // Allow all willys assets (JS/CSS/fonts/images) but block obvious third-party trackers and heavy media elsewhere.
+    // Allow all first-party assets (willys.se / axfood.se); block obvious trackers/media elsewhere.
     await context.route("**/*", async (route) => {
       const url = route.request().url();
       const rt = route.request().resourceType();
-      const isWillys = /https?:\/\/([^.]+\.)?willys\.se/i.test(url);
+      const isFirstParty = /https?:\/\/([^.]+\.)?(willys\.se|axfood\.se)/i.test(
+        url
+      );
 
-      if (isWillys) {
+      if (isFirstParty) {
         return route.continue().catch(() => {});
       }
 
@@ -1075,12 +1105,12 @@ async function runBankIdLogin({
 
     const switched = await switchToMobiltBankID(page);
     if (!switched) {
-      onEvent?.("error", {
-        msg: "Could not switch to 'Mobilt BankID' tab",
+      onEvent?.("log", {
+        msg: "Did not explicitly find/activate a 'Mobilt BankID' tab; continuing anyway",
       });
-      throw new Error("BankID tab not found");
+    } else {
+      mark("Switched to Mobilt BankID (or CTA already visible)");
     }
-    mark("Switched to Mobilt BankID");
 
     const clicked = await clickToShowQR2(page);
     if (!clicked) {
