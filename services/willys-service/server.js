@@ -794,6 +794,57 @@ async function clickToShowQR(page) {
   return ok;
 }
 
+// More aggressive QR clicker for slower/variant UIs
+async function clickToShowQR2(page) {
+  const dlg = page.locator('div[role="dialog"]').first();
+  const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
+
+  const patterns = [
+    /Mobilt\s*BankID\s*p[åaǾ]\s*annan\s*enhet/i,
+    /Logga in med Mobilt BankID/i,
+    /BankID-appen/i,
+    /QR/i,
+    /Skanna/i,
+  ];
+
+  const forceClick = async () => {
+    return await page.evaluate((reSources) => {
+      const res = reSources.map((s) => new RegExp(s, "i"));
+      const candidates = Array.from(
+        document.querySelectorAll("button,[role=button],[role=tab],a,div,span")
+      );
+      for (const el of candidates) {
+        const text = (el.textContent || "").trim();
+        if (!text) continue;
+        if (res.some((re) => re.test(text))) {
+          el.click();
+          return true;
+        }
+      }
+      return false;
+    }, patterns.map((p) => p.source));
+  };
+
+  let ok = await clickAnyText(scope, patterns);
+  if (ok) return true;
+
+  try {
+    await page.evaluate(() => {
+      const el = document.querySelector('div[role="dialog"]');
+      if (el) el.scrollTop = el.scrollHeight;
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+  } catch {}
+
+  ok = await clickAnyText(scope, patterns);
+  if (ok) return true;
+
+  ok = await forceClick();
+  if (ok) return true;
+  ok = await forceClick();
+  return ok;
+}
+
 async function waitForQrHints(page, timeoutMs = 15000) {
   const until = Date.now() + timeoutMs;
   while (Date.now() < until) {
@@ -930,7 +981,7 @@ async function runBankIdLogin({
     }
     log?.("Switched to Mobilt BankID");
 
-    const clicked = await clickToShowQR(page);
+    const clicked = await clickToShowQR2(page);
     if (!clicked) {
       onEvent?.("error", {
         msg: "Could not find QR/annan enhet or 'Logga in med Mobilt BankID' button",
