@@ -866,6 +866,61 @@ async function switchToMobiltBankID(page, timeoutMs = 15000) {
   return false;
 }
 
+// Override with faster variants (keep name to supersede earlier definitions)
+async function closeCookies(page) {
+  const selectors = [
+    "#onetrust-reject-all-handler",
+    "#onetrust-accept-btn-handler",
+    'button:has-text("Avvisa alla")',
+    'button:has-text("Acceptera alla cookies")',
+  ];
+  for (const sel of selectors) {
+    try {
+      const btn = await page.$(sel);
+      if (btn) {
+        await btn.click({ timeout: 500 });
+        break;
+      }
+    } catch {}
+  }
+  await safe(
+    () =>
+      page.addStyleTag({
+        content: `
+        #onetrust-banner-sdk,
+        .onetrust-pc-dark-filter,
+        [id*="cookie" i],
+        [class*="cookie" i],
+        [class*="consent" i] {
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          display: none !important;
+        }
+      `,
+      }),
+    "injectCookieHideCssFast"
+  );
+  return true;
+}
+
+async function switchToMobiltBankID(page, timeoutMs = 15000) {
+  try {
+    await page.click("text=Mobilt BankID", { timeout: 3000 });
+    return true;
+  } catch {}
+
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const dlg = page.locator('div[role="dialog"]').first();
+    const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
+    const ok = await clickAnyText(scope, [/Mobilt\\s*BankID/i]);
+    if (ok) return true;
+    await page.waitForTimeout(400);
+  }
+  return false;
+}
+
 async function clickToShowQR(page) {
   const dlg = page.locator('div[role="dialog"]').first();
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
@@ -1022,27 +1077,32 @@ async function runBankIdLogin({
 
   try {
     const storageState = await getStorageStateForUser(userId, sessionPath);
-    // Fast path: try token-based QR first
-    const tokenResult = await tryBankIdTokenFlow({
-      userId,
-      sessionPath,
-      storageState,
-      timeoutMs: Math.min(timeoutMs, 60_000),
-      onEvent,
-    });
-    if (tokenResult?.ok) {
-      onEvent?.("done", { ok: true, result: tokenResult.result });
-      return tokenResult;
+    // Fast path: only try token flow if we actually have a session
+    if (storageState) {
+      const tokenResult = await tryBankIdTokenFlow({
+        userId,
+        sessionPath,
+        storageState,
+        timeoutMs: Math.min(timeoutMs, 60_000),
+        onEvent,
+      });
+      if (tokenResult?.ok) {
+        onEvent?.("done", { ok: true, result: tokenResult.result });
+        return tokenResult;
+      }
     }
 
-    log?.("Obtaining shared Playwright browser...");
+    log?.("Obtaining shared Playwright browser/context...");
     browser = await getSharedBrowser();
-    context = await browser.newContext({
-      viewport: { width: 420, height: 640 },
-      userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      locale: "sv-SE",
-    });
+    // Try to reuse a warm context for this user (headless only)
+    context =
+      (await getWarmContext(userId, storageState, headless)) ||
+      (await browser.newContext({
+        viewport: { width: 420, height: 640 },
+        userAgent: UA_CHROME,
+        locale: "sv-SE",
+        storageState: storageState || undefined,
+      }));
 
     // Speed up: block heavy assets and seed consent to avoid cookie banners
     await safe(() => context.addCookies([buildConsentCookie()]), "seedConsentCookie");
@@ -1095,7 +1155,7 @@ async function runBankIdLogin({
     page = await context.newPage();
     attachNetworkTaps(page, (evt, data) => onEvent?.(evt, data));
 
-    await page.goto(LOGIN_URL, { waitUntil: "domcontentloaded" });
+    await page.goto(LOGIN_URL, { waitUntil: "domcontentloaded", timeout: 15000 });
     mark("Opened /anvandare/inloggning");
 
     await closeCookies(page);
@@ -1200,7 +1260,13 @@ async function runBankIdLogin({
       }
     }
 
-    await safe(() => context?.close(), "closeContext");
+    // Keep warm contexts alive for reuse; close otherwise
+    if (!userId || headless === false) {
+      await safe(() => context?.close(), "closeContext");
+    } else {
+      const entry = warmContexts.get(userId);
+      if (entry) entry.lastUsed = Date.now();
+    }
     onEvent?.(
       "done",
       final?.ok ? { ok: true, result: final.result } : { ok: false }
