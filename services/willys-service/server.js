@@ -818,7 +818,7 @@ async function switchToMobiltBankID(page, timeoutMs = 15000) {
   while (Date.now() < deadline) {
     const dlg = page.locator('div[role="dialog"]').first();
     const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
-    const ok = await clickAnyText(scope, [/Mobilt\\s*BankID/i]);
+    const ok = await clickAnyText(scope, [/Mobilt\s*BankID/i]);
     if (ok) return true;
     await page.waitForTimeout(400);
   }
@@ -830,9 +830,9 @@ async function clickToShowQR(page) {
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
   let ok = await clickAnyText(scope, [
-    /Mobilt\s*BankID\s*pÃ¥\s*annan\s*enhet/i,
+    /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
     /Logga in med Mobilt BankID/i,
-    /Ã–ppna BankID-appen/i,
+    /Öppna BankID-appen/i,
   ]);
   if (ok) return true;
 
@@ -843,7 +843,7 @@ async function clickToShowQR(page) {
     });
   } catch {}
 
-  ok = await clickAnyText(scope, [/annan enhet/i, /\bQR\b/i, /BankID/i]);
+  ok = await clickAnyText(scope, [/annan enhet/i, /QR/i, /BankID/i]);
   return ok;
 }
 
@@ -853,7 +853,7 @@ async function clickToShowQR2(page) {
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
   const patterns = [
-    /Mobilt\s*BankID\s*p[Ã¥aÇ¾]\s*annan\s*enhet/i,
+    /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
     /Logga in med Mobilt BankID/i,
     /BankID-appen/i,
     /QR/i,
@@ -862,12 +862,12 @@ async function clickToShowQR2(page) {
 
   const forceClick = async () => {
     return await page.evaluate((reSources) => {
-      const res = reSources.map((s) => new RegExp(s, "i"));
+      const res = reSources.map((s) => new RegExp(s, 'i'));
       const candidates = Array.from(
-        document.querySelectorAll("button,[role=button],[role=tab],a,div,span")
+        document.querySelectorAll('button,[role=button],[role=tab],a,div,span')
       );
       for (const el of candidates) {
-        const text = (el.textContent || "").trim();
+        const text = (el.textContent || '').trim();
         if (!text) continue;
         if (res.some((re) => re.test(text))) {
           el.click();
@@ -878,55 +878,21 @@ async function clickToShowQR2(page) {
     }, patterns.map((p) => p.source));
   };
 
-  let ok = await clickAnyText(scope, patterns);
-  if (ok) return true;
-
-  try {
-    await page.evaluate(() => {
+  const forceScroll = async () => {
+    return await page.evaluate(() => {
       const el = document.querySelector('div[role="dialog"]');
       if (el) el.scrollTop = el.scrollHeight;
-      window.scrollTo(0, document.body.scrollHeight);
     });
-  } catch {}
+  };
 
-  ok = await clickAnyText(scope, patterns);
-  if (ok) return true;
-
-  ok = await forceClick();
-  if (ok) return true;
-  ok = await forceClick();
-  return ok;
-}
-
-async function waitForQrHints(page, timeoutMs = 15000) {
-  const until = Date.now() + timeoutMs;
-  while (Date.now() < until) {
-    const dlg = page.locator('div[role="dialog"]').first();
-    if (await dlg.isVisible().catch(() => false)) {
-      const hasCanvas = await dlg.locator("canvas").count().catch(() => 0);
-      if (hasCanvas > 0) return { dom: true, type: "canvas" };
-      const imgs = await dlg.locator("img").elementHandles().catch(() => []);
-      if (imgs?.length) {
-        const info = await Promise.all(
-          imgs.map((h) =>
-            h.evaluate((img) => ({
-              src: img.src || "",
-              nw: img.naturalWidth || 0,
-              nh: img.naturalHeight || 0,
-            }))
-          )
-        );
-        if (info.some((x) => x.nw >= 150 && x.nh >= 150))
-          return { dom: true, type: "img" };
-      }
-    }
-    const hasSeenQr = await page
-      .evaluate(() => !!window.__WL_LAST_QR_TOKEN__)
-      .catch(() => false);
-    if (hasSeenQr) return { net: true, type: "token" };
-    await sleep(300);
+  for (let i = 0; i < patterns.length; i++) {
+    const ok = await clickAnyText(scope, [patterns[i]]);
+    if (ok) return true;
   }
-  return null;
+
+  await forceScroll();
+  const forced = await forceClick();
+  return !!forced;
 }
 
 function attachNetworkTaps(page, onEvent) {
