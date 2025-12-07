@@ -795,23 +795,33 @@ async function closeCookies(page) {
 }
 
 async function switchToMobiltBankID(page, timeoutMs = 15000) {
-  const selector = "text=Mobilt BankID";
-  try {
-    const tab = await page.waitForSelector(selector, { timeout: timeoutMs });
-    if (tab) {
-      await tab.click({ timeout: 3000 });
-      return true;
-    }
-  } catch {}
-
   const deadline = Date.now() + timeoutMs;
+
   while (Date.now() < deadline) {
     const dlg = page.locator('div[role="dialog"]').first();
     const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
-    const ok = await clickAnyText(scope, [/Mobilt\s*BankID/i]);
+
+    try {
+      const tab = scope
+        .locator('button, [role="tab"], [role="button"], a')
+        .filter({ hasText: /Mobilt\s*BankID/i })
+        .first();
+      if (await tab.isVisible({ timeout: 500 }).catch(() => false)) {
+        await tab.click({ timeout: 1000 });
+        return true;
+      }
+    } catch {}
+
+    const ok = await clickAnyText(scope, [/^Mobilt\s*BankID$/i, /Mobilt\s*BankID/i]);
     if (ok) return true;
-    await page.waitForTimeout(400);
+
+    try {
+      await page.waitForTimeout(400);
+    } catch {
+      return false;
+    }
   }
+
   return false;
 }
 
@@ -833,7 +843,7 @@ async function clickToShowQR(page) {
     });
   } catch {}
 
-  ok = await clickAnyText(scope, [/annan enhet/i, /QR/i, /BankID/i]);
+  ok = await clickAnyText(scope, [/annan enhet/i, /\bQR\b/i, /BankID/i]);
   return ok;
 }
 
@@ -883,6 +893,48 @@ async function clickToShowQR2(page) {
   await forceScroll();
   const forced = await forceClick();
   return !!forced;
+}
+
+async function waitForQrHints(page, timeoutMs = 15000) {
+  const until = Date.now() + timeoutMs;
+
+  while (Date.now() < until) {
+    const dlg = page.locator('div[role="dialog"]').first();
+
+    if (await dlg.isVisible().catch(() => false)) {
+      try {
+        const canvasCount = await dlg.locator("canvas").count();
+        if (canvasCount > 0) return { dom: true, type: "canvas" };
+      } catch {}
+
+      try {
+        const imgs = await dlg.locator("img").elementHandles();
+        if (imgs?.length) {
+          const info = await Promise.all(
+            imgs.map((h) =>
+              h.evaluate((img) => ({
+                src: img.src || "",
+                nw: img.naturalWidth || 0,
+                nh: img.naturalHeight || 0,
+              }))
+            )
+          );
+          if (info.some((x) => x.nw >= 150 && x.nh >= 150)) {
+            return { dom: true, type: "img" };
+          }
+        }
+      } catch {}
+    }
+
+    const hasSeenQr = await page
+      .evaluate(() => !!window.__WL_LAST_QR_TOKEN__)
+      .catch(() => false);
+    if (hasSeenQr) return { net: true, type: "token" };
+
+    await sleep(300);
+  }
+
+  return null;
 }
 
 function attachNetworkTaps(page, onEvent) {
