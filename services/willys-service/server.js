@@ -1064,16 +1064,8 @@ async function runBankIdLogin({
       "seedConsentLS"
     );
 
-    // Allow willys assets; block obvious trackers/analytics and media streams.
+    // For debugging Render chunk failures, allow all requests (no blocking).
     await context.route("**/*", async (route) => {
-      const rt = route.request().resourceType();
-      const url = route.request().url();
-      if (
-        /clarity\.ms|sitegainer\.com|hotjar|analytics\.willys\.se/i.test(url) ||
-        rt === "media"
-      ) {
-        return route.abort().catch(() => {});
-      }
       return route.continue().catch(() => {});
     });
 
