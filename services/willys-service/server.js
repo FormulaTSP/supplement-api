@@ -36,7 +36,7 @@ async function getSharedBrowser() {
   if (sharedBrowser) return sharedBrowser;
   sharedBrowser = await chromium.launch({
     headless: true,
-    args: ["--disable-dev-shm-usage"],
+    args: ["--disable-dev-shm-usage", "--no-sandbox", "--disable-setuid-sandbox"],
   });
   sharedBrowser.on("disconnected", () => {
     sharedBrowser = null;
