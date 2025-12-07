@@ -1,4 +1,4 @@
-// services/willys-service/server.js
+﻿// services/willys-service/server.js
 import express from "express";
 import cors from "cors";
 import { chromium, request } from "playwright";
@@ -102,7 +102,7 @@ function buildConsentCookie() {
   };
 }
 
-// How far back to fetch receipts if caller doesn’t specify
+// How far back to fetch receipts if caller doesnâ€™t specify
 const DEFAULT_RECEIPT_MONTHS = Number(
   process.env.RECEIPT_MONTHS_DEFAULT || 12
 );
@@ -410,7 +410,7 @@ async function fetchReceiptDescriptors(
     }
 
     console.log(
-      `[willys-service] Page ${serverPage + 1}/${numberOfPages} → ${results.length} row(s), total descriptors=${out.length}`
+      `[willys-service] Page ${serverPage + 1}/${numberOfPages} â†’ ${results.length} row(s), total descriptors=${out.length}`
     );
 
     if (serverPage + 1 >= numberOfPages) break;
@@ -769,102 +769,6 @@ async function clickAnyText(page, patterns, scope) {
   return false;
 }
 
-async function closeCookies(page) {
-  const candidates = [
-    page.locator("#onetrust-accept-btn-handler").first(),
-    page.locator("#onetrust-reject-all-handler").first(),
-    page.getByRole("button", { name: /Acceptera|Godkänn|Tillåt/i }).first(),
-    page.getByRole("button", { name: /Avvisa|Neka/i }).first(),
-  ];
-  for (const loc of candidates) {
-    try {
-      if (await loc.isVisible({ timeout: 600 })) {
-        await loc.click({ timeout: 1200 });
-        return true;
-      }
-    } catch {}
-  }
-  // hide any banner if still around
-  await safe(
-    () =>
-      page.addStyleTag({
-        content: `
-        #onetrust-banner-sdk, .onetrust-pc-dark-filter, [id*="cookie" i], [class*="cookie" i], [class*="consent" i] {
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-        }
-      `,
-      }),
-    "injectCookieHideCss"
-  );
-  return false;
-}
-
-async function switchToMobiltBankID(page, timeoutMs = 15000) {
-  const deadline = Date.now() + timeoutMs;
-
-  while (Date.now() < deadline) {
-    const dlg = page.locator('div[role="dialog"]').first();
-    const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
-
-    const ok = await clickAnyText(scope, [
-      /^Mobilt\s*BankID$/i,
-      /Mobilt\s*BankID/i,
-    ]);
-    if (ok) return true;
-
-    try {
-      const candidate = scope
-        .locator('button, [role="button"], [role="tab"], a')
-        .filter({ hasText: /Mobilt\s*BankID/i })
-        .first();
-
-      if (await candidate.isVisible({ timeout: 800 }).catch(() => false)) {
-        await candidate.click({ timeout: 1500 });
-        return true;
-      }
-    } catch {}
-
-    try {
-      const clicked = await page.evaluate(() => {
-        const re = /mobilt\s*bankid/i;
-        const isVisible = (el) => {
-          if (!el) return false;
-          const style = window.getComputedStyle(el);
-          if (
-            style.display === "none" ||
-            style.visibility === "hidden" ||
-            style.opacity === "0"
-          )
-            return false;
-          const rect = el.getBoundingClientRect();
-          return rect.width > 0 && rect.height > 0;
-        };
-
-        const candidates = Array.from(
-          document.querySelectorAll(
-            "button,[role=button],[role=tab],a,div,span"
-          )
-        );
-        for (const el of candidates) {
-          if (!isVisible(el)) continue;
-          const text = (el.textContent || "").trim();
-          if (re.test(text)) {
-            el.click();
-            return true;
-          }
-        }
-        return false;
-      });
-      if (clicked) return true;
-    } catch {}
-
-    await page.waitForTimeout(400);
-  }
-
-  return false;
-}
 
 // Override with faster variants (keep name to supersede earlier definitions)
 async function closeCookies(page) {
@@ -926,9 +830,9 @@ async function clickToShowQR(page) {
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
   let ok = await clickAnyText(scope, [
-    /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
+    /Mobilt\s*BankID\s*pÃ¥\s*annan\s*enhet/i,
     /Logga in med Mobilt BankID/i,
-    /Öppna BankID-appen/i,
+    /Ã–ppna BankID-appen/i,
   ]);
   if (ok) return true;
 
@@ -949,7 +853,7 @@ async function clickToShowQR2(page) {
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
   const patterns = [
-    /Mobilt\s*BankID\s*p[åaǾ]\s*annan\s*enhet/i,
+    /Mobilt\s*BankID\s*p[Ã¥aÇ¾]\s*annan\s*enhet/i,
     /Logga in med Mobilt BankID/i,
     /BankID-appen/i,
     /QR/i,
@@ -1186,9 +1090,9 @@ async function runBankIdLogin({
       () =>
         page.addStyleTag({
           content: `
-          button[aria-label="Stäng"],
+          button[aria-label="StÃ¤ng"],
           button[aria-label="Close"],
-          svg[aria-label="Stäng"],
+          svg[aria-label="StÃ¤ng"],
           svg[aria-label="Close"] {
             display: none !important;
             visibility: hidden !important;
@@ -1251,7 +1155,7 @@ async function runBankIdLogin({
     clearInterval(snapshotTimer);
 
     if (final?.ok) {
-      log?.("Login COMPLETE → saving session.");
+      log?.("Login COMPLETE â†’ saving session.");
       await safe(() => fs.mkdirSync(path.dirname(sessionPath), { recursive: true }), "ensureSessionDir");
       const stateObj = await safe(() => context.storageState(), "getStateObj");
       await safe(() => context.storageState({ path: sessionPath }), "saveSessionFile");
@@ -1399,7 +1303,7 @@ app.post("/willys/fetch-receipts", async (req, res) => {
     const toDate = todayYmd();
 
     console.log(
-      `[willys-service] Fetching receipts range ${fromDate} → ${toDate} (months=${rangeMonths})`
+      `[willys-service] Fetching receipts range ${fromDate} â†’ ${toDate} (months=${rangeMonths})`
     );
 
     const ctx = await createWillysApiContext({ userId, sessionPath });
@@ -1468,7 +1372,7 @@ app.post("/willys/fetch-receipts-with-content", async (req, res) => {
     const toDate = todayYmd();
 
     console.log(
-      `[willys-service] (with-content) Fetching receipts range ${fromDate} → ${toDate} (months=${rangeMonths})`
+      `[willys-service] (with-content) Fetching receipts range ${fromDate} â†’ ${toDate} (months=${rangeMonths})`
     );
 
     const ctx = await createWillysApiContext({ userId, sessionPath });
@@ -1537,7 +1441,7 @@ app.post("/willys/fetch-receipts-with-content", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[willys-service] Running → http://localhost:${PORT}`);
+  console.log(`[willys-service] Running â†’ http://localhost:${PORT}`);
 });
 
 // --- Lightweight read endpoint for frontend (grocery_data) ---
@@ -1574,6 +1478,7 @@ app.get("/willys/receipts", async (req, res) => {
     return res.status(500).json({ ok: false, error: e?.message || String(e) });
   }
 });
+
 
 
 
