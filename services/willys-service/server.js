@@ -8,6 +8,7 @@ import fetch from "node-fetch"; // for calling Supabase edge function
 import crypto from "node:crypto";
 import { extractPdfText } from "./scripts/pdf_extract.js";
 import { parseReceiptText } from "./lib/willys_parse.js";
+import qrcode from "qrcode";
 
 // ---------- constants ----------
 const PORT = Number(process.env.PORT || process.env.WILLYS_SVC_PORT || 3031);
@@ -29,6 +30,44 @@ const GROCERY_TABLE = process.env.GROCERY_TABLE || "grocery_data";
 const DIRECT_INGEST_IMMEDIATE = /^true$/i.test(
   String(process.env.WILLYS_DIRECT_INGEST_IMMEDIATE || "false")
 );
+const WILLYS_WARM_CONTEXT_LIMIT = Number(
+  process.env.WILLYS_WARM_CONTEXT_LIMIT || 3
+);
+const UA_CHROME =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+// Per-user warm contexts to avoid repeated cold loads
+const warmContexts = new Map(); // userId -> { context, lastUsed }
+function evictWarmContexts() {
+  if (warmContexts.size <= WILLYS_WARM_CONTEXT_LIMIT) return;
+  const entries = Array.from(warmContexts.entries()).sort(
+    (a, b) => a[1].lastUsed - b[1].lastUsed
+  );
+  while (entries.length > WILLYS_WARM_CONTEXT_LIMIT) {
+    const [uid, entry] = entries.shift();
+    safe(() => entry.context.close(), `closeWarmContext:${uid}`);
+    warmContexts.delete(uid);
+  }
+}
+
+async function getWarmContext(userId, storageState, headless) {
+  if (!userId || headless === false) return null; // don't cache visible runs
+  const existing = warmContexts.get(userId);
+  if (existing) {
+    existing.lastUsed = Date.now();
+    return existing.context;
+  }
+  const browser = await getSharedBrowser();
+  const ctx = await browser.newContext({
+    viewport: { width: 420, height: 640 },
+    userAgent: UA_CHROME,
+    locale: "sv-SE",
+    storageState: storageState || SESSION_PATH,
+  });
+  warmContexts.set(userId, { context: ctx, lastUsed: Date.now() });
+  evictWarmContexts();
+  return ctx;
+}
 
 // Keep a shared Playwright browser to avoid cold starts per QR request.
 let sharedBrowser = null;
@@ -522,6 +561,61 @@ async function fetchReceiptBodies({ storageState = null, sessionPath = null }, d
   return out;
 }
 
+// ---------- token-first BankID QR fetch (fast path) ----------
+async function tryBankIdTokenFlow({
+  userId,
+  sessionPath,
+  storageState,
+  timeoutMs = 60_000,
+  onEvent,
+}) {
+  try {
+    const api = await request.newContext({
+      baseURL: "https://www.willys.se",
+      storageState: storageState || sessionPath,
+      extraHTTPHeaders: {
+        accept: "*/*",
+        referer: "https://www.willys.se/anvandare/inloggning",
+        "accept-language": "sv-SE,sv;q=0.9,en;q=0.8",
+      },
+    });
+
+    const tokenResp = await api.get("/axfood/rest/checkout/bankid/qr");
+    const tokenText = await tokenResp.text();
+    if (!tokenResp.ok() || !tokenText || !/^bankid\./i.test(tokenText.trim())) {
+      await api.dispose();
+      return null;
+    }
+
+    // Stream generated QR immediately
+    const dataUrl = await qrcode.toDataURL(tokenText.trim());
+    onEvent?.("qr-image", { image: dataUrl });
+
+    const started = Date.now();
+    let final = null;
+    // Poll collect-login until COMPLETE or timeout
+    while (Date.now() - started < timeoutMs) {
+      try {
+        const collectResp = await api.get("/axfood/rest/checkout/bankid/collect-login");
+        const status = await collectResp.json().catch(() => null);
+        if (status?.status === "COMPLETE") {
+          final = { ok: true, result: status };
+          break;
+        }
+        if (status?.status && status?.hintCode) {
+          onEvent?.("collect", { status: status.status, hintCode: status.hintCode });
+        }
+      } catch {}
+      await sleep(800);
+    }
+
+    await api.dispose();
+    return final || { ok: false, error: "Timed out waiting for BankID COMPLETE" };
+  } catch (e) {
+    return null;
+  }
+}
+
 // ---------- direct ingest into Supabase grocery_data (and optional raw table) ----------
 async function upsertIntoGrocery({
   supabaseUserId,
@@ -922,6 +1016,20 @@ async function runBankIdLogin({
   const log = (m) => onEvent?.("log", { msg: m });
 
   try {
+    const storageState = await getStorageStateForUser(userId, sessionPath);
+    // Fast path: try token-based QR first
+    const tokenResult = await tryBankIdTokenFlow({
+      userId,
+      sessionPath,
+      storageState,
+      timeoutMs: Math.min(timeoutMs, 60_000),
+      onEvent,
+    });
+    if (tokenResult?.ok) {
+      onEvent?.("done", { ok: true, result: tokenResult.result });
+      return tokenResult;
+    }
+
     log?.("Obtaining shared Playwright browser...");
     browser = await getSharedBrowser();
     context = await browser.newContext({
