@@ -30,6 +30,20 @@ const DIRECT_INGEST_IMMEDIATE = /^true$/i.test(
   String(process.env.WILLYS_DIRECT_INGEST_IMMEDIATE || "false")
 );
 
+// Keep a shared Playwright browser to avoid cold starts per QR request.
+let sharedBrowser = null;
+async function getSharedBrowser() {
+  if (sharedBrowser) return sharedBrowser;
+  sharedBrowser = await chromium.launch({
+    headless: true,
+    args: ["--disable-dev-shm-usage"],
+  });
+  sharedBrowser.on("disconnected", () => {
+    sharedBrowser = null;
+  });
+  return sharedBrowser;
+}
+
 // Seed a permissive consent cookie/localStorage to avoid OneTrust blocking the UI
 function buildConsentCookie() {
   const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 days
@@ -857,11 +871,8 @@ async function runBankIdLogin({
   const log = (m) => onEvent?.("log", { msg: m });
 
   try {
-    log?.("Launching Playwright headless...");
-    browser = await chromium.launch({
-      headless,
-      args: ["--disable-dev-shm-usage"],
-    });
+    log?.("Obtaining shared Playwright browser...");
+    browser = await getSharedBrowser();
     context = await browser.newContext({
       viewport: { width: 420, height: 640 },
     });
@@ -1018,7 +1029,7 @@ async function runBankIdLogin({
       ? final
       : { ok: false, error: final?.error || "Unknown error" };
   } catch (err) {
-    await safe(() => browser?.close(), "closeBrowserOnError");
+    await safe(() => context?.close(), "closeContextOnError");
     onEvent?.("error", { msg: err?.message || String(err) });
     return { ok: false, error: err?.message || String(err) };
   }
