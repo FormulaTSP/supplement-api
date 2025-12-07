@@ -30,6 +30,25 @@ const DIRECT_INGEST_IMMEDIATE = /^true$/i.test(
   String(process.env.WILLYS_DIRECT_INGEST_IMMEDIATE || "false")
 );
 
+// Seed a permissive consent cookie/localStorage to avoid OneTrust blocking the UI
+function buildConsentCookie() {
+  const expires = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 days
+  const consentValue =
+    "isGpcEnabled=0&datestamp=" +
+    new Date().toISOString() +
+    "&version=6.16.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1,C0004:1";
+  return {
+    name: "OptanonConsent",
+    value: consentValue,
+    domain: ".willys.se",
+    path: "/",
+    expires,
+    httpOnly: false,
+    secure: true,
+    sameSite: "None",
+  };
+}
+
 // How far back to fetch receipts if caller doesn’t specify
 const DEFAULT_RECEIPT_MONTHS = Number(
   process.env.RECEIPT_MONTHS_DEFAULT || 12
@@ -847,10 +866,39 @@ async function runBankIdLogin({
       viewport: { width: 420, height: 640 },
     });
 
-    context.on("request", async (req) => {
-      try {
-        if (req.resourceType() === "font") await req.abort();
-      } catch {}
+    // Speed up: block heavy assets and seed consent to avoid cookie banners
+    await safe(() => context.addCookies([buildConsentCookie()]), "seedConsentCookie");
+    await safe(
+      () =>
+        context.addInitScript(() => {
+          try {
+            localStorage.setItem(
+              "OptanonConsent",
+              "isGpcEnabled=0&datestamp=" +
+                new Date().toISOString() +
+                "&version=6.16.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1,C0004:1"
+            );
+          } catch {}
+          const css = `
+            #onetrust-banner-sdk, .onetrust-pc-dark-filter, [id*="cookie" i], [class*="cookie" i], [class*="consent" i] {
+              visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; display: none !important;
+            }
+          `;
+          const s = document.createElement("style");
+          s.textContent = css;
+          document.documentElement.appendChild(s);
+        }),
+      "seedConsentLS"
+    );
+
+    // Allow images/styles/fonts so the dialog looks identical to production.
+    await context.route("**/*", async (route) => {
+      const rt = route.request().resourceType();
+      // Only skip obvious media streams; keep images for the BankID logo.
+      if (rt === "media") {
+        return route.abort().catch(() => {});
+      }
+      return route.continue().catch(() => {});
     });
 
     page = await context.newPage();
