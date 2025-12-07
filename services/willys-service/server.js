@@ -772,21 +772,7 @@ async function clickAnyText(page, patterns, scope) {
 
 // Override with faster variants (keep name to supersede earlier definitions)
 async function closeCookies(page) {
-  const selectors = [
-    "#onetrust-reject-all-handler",
-    "#onetrust-accept-btn-handler",
-    'button:has-text("Avvisa alla")',
-    'button:has-text("Acceptera alla cookies")',
-  ];
-  for (const sel of selectors) {
-    try {
-      const btn = await page.$(sel);
-      if (btn) {
-        await btn.click({ timeout: 500 });
-        break;
-      }
-    } catch {}
-  }
+  // Skip clicking to avoid slow page reactions; just hide all consent UI via CSS.
   await safe(
     () =>
       page.addStyleTag({
@@ -809,9 +795,13 @@ async function closeCookies(page) {
 }
 
 async function switchToMobiltBankID(page, timeoutMs = 15000) {
+  const selector = "text=Mobilt BankID";
   try {
-    await page.click("text=Mobilt BankID", { timeout: 3000 });
-    return true;
+    const tab = await page.waitForSelector(selector, { timeout: timeoutMs });
+    if (tab) {
+      await tab.click({ timeout: 3000 });
+      return true;
+    }
   } catch {}
 
   const deadline = Date.now() + timeoutMs;
@@ -1145,6 +1135,7 @@ async function runBankIdLogin({
       ? final
       : { ok: false, error: final?.error || "Unknown error" };
   } catch (err) {
+    if (userId) warmContexts.delete(userId);
     await safe(() => context?.close(), "closeContextOnError");
     onEvent?.("error", { msg: err?.message || String(err) });
     return { ok: false, error: err?.message || String(err) };
