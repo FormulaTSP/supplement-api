@@ -126,7 +126,7 @@ async function upsertReceiptsDirect(userId, receipts) {
       digitalreceipt_url: r.digitalreceipt_url || null,
       content_type: r.content_type || null,
       byte_length: r.byte_length || null,
-      raw_pdf_base64: r.content_base64 || null,
+      content_base64: r.content_base64 || null,
       raw_text,
       parsed_items: parsed?.items || null,
       parsed_item_count: parsed?.itemCount ?? null,

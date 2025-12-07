@@ -526,7 +526,7 @@ async function fetchReceiptBodies({ storageState = null, sessionPath = null }, d
 async function upsertIntoGrocery({
   supabaseUserId,
   receipts,
-  rawTable = null,
+  rawTable = process.env.WILLYS_DIRECT_INGEST_TABLE || "willys_receipts_raw",
   groceryTable = GROCERY_TABLE,
 }) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -566,7 +566,7 @@ async function upsertIntoGrocery({
         digitalreceipt_url: r.digitalreceipt_url || null,
         content_type: r.content_type || null,
         byte_length: r.byte_length || null,
-        raw_pdf_base64: r.content_base64 || null,
+        content_base64: r.content_base64 || null,
         raw_text,
         parsed_items: parsed?.items || null,
         parsed_item_count: parsed?.itemCount ?? null,
