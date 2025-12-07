@@ -875,27 +875,38 @@ async function clickToShowQR(page) {
   return ok;
 }
 
-// More aggressive QR clicker for slower/variant UIs
+// More aggressive QR clicker for slower/variant UIs (CTA-first)
 async function clickToShowQR2(page) {
   const dlg = page.locator('div[role="dialog"]').first();
   const scope = (await dlg.isVisible().catch(() => false)) ? dlg : page;
 
-  const patterns = [
-    /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
-    /Logga in med Mobilt BankID/i,
-    /BankID-appen/i,
-    /QR/i,
-    /Skanna/i,
+  // Favor explicit "other device / QR" texts first
+  const primaryPatterns = [
+    /QR[-\s]*kod/i,
+    /Skanna\s*QR/i,
+    /på\s*annan\s*enhet/i,
+    /annan\s*enhet/i,
   ];
 
-  const forceClick = async () => {
+  // Then more generic BankID CTAs
+  const secondaryPatterns = [
+    /Mobilt\s*BankID\s*på\s*annan\s*enhet/i,
+    /Logga in med Mobilt BankID/i,
+    /Logga in med mobilt BankID/i,
+    /Logga in med BankID/i,
+    /BankID-appen/i,
+  ];
+
+  const forceClick = async (patterns) => {
     return await page.evaluate((reSources) => {
-      const res = reSources.map((s) => new RegExp(s, 'i'));
+      const res = reSources.map((s) => new RegExp(s, "i"));
       const candidates = Array.from(
-        document.querySelectorAll('button,[role=button],[role=tab],a,div,span')
+        document.querySelectorAll(
+          "button,[role=button],[role=tab],a,div,span,label"
+        )
       );
       for (const el of candidates) {
-        const text = (el.textContent || '').trim();
+        const text = (el.textContent || "").trim();
         if (!text) continue;
         if (res.some((re) => re.test(text))) {
           el.click();
@@ -908,18 +919,35 @@ async function clickToShowQR2(page) {
 
   const forceScroll = async () => {
     return await page.evaluate(() => {
-      const el = document.querySelector('div[role="dialog"]');
-      if (el) el.scrollTop = el.scrollHeight;
+      const dialogEl = document.querySelector('div[role="dialog"]');
+      if (dialogEl) dialogEl.scrollTop = dialogEl.scrollHeight;
+      window.scrollTo(0, document.body.scrollHeight);
     });
   };
 
-  for (let i = 0; i < patterns.length; i++) {
-    const ok = await clickAnyText(scope, [patterns[i]]);
+  // Try primary patterns via Playwright locators
+  for (const pat of primaryPatterns) {
+    const ok = await clickAnyText(scope, [pat]);
     if (ok) return true;
   }
 
+  // Then secondary patterns
+  for (const pat of secondaryPatterns) {
+    const ok = await clickAnyText(scope, [pat]);
+    if (ok) return true;
+  }
+
+  // Force scroll and click via DOM heuristics
   await forceScroll();
-  const forced = await forceClick();
+  let forced =
+    (await forceClick(primaryPatterns)) ||
+    (await forceClick(secondaryPatterns));
+  if (forced) return true;
+
+  // Final try
+  forced =
+    (await forceClick(primaryPatterns)) ||
+    (await forceClick(secondaryPatterns));
   return !!forced;
 }
 
@@ -1122,7 +1150,23 @@ async function runBankIdLogin({
     }
 
     const hint = await waitForQrHints(page, 15_000);
-    if (hint) log?.(`QR hint: ${JSON.stringify(hint)}`);
+    if (hint) {
+      log?.(`QR hint: ${JSON.stringify(hint)}`);
+    } else {
+      // No QR detected yet — dump dialog text for debugging and retry targeted clicks
+      const dlg = page.locator('div[role="dialog"]').first();
+      const snippet = await safe(() => dlg.innerText(), "dumpDialogText");
+      log?.({
+        msg: "No QR detected after clicking CTA; dialog text snippet:",
+        snippet: String(snippet || "").slice(0, 800),
+      });
+
+      await clickAnyText(dlg, [/QR[-\s]*kod/i, /Skanna\s*QR/i, /annan\s*enhet/i]);
+      const hint2 = await waitForQrHints(page, 10_000);
+      if (hint2) {
+        log?.(`QR hint (second try): ${JSON.stringify(hint2)}`);
+      }
+    }
 
     await safe(
       () =>
