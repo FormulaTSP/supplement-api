@@ -924,10 +924,6 @@ async function upsertIntoGrocery({
         content_type: r.content_type || null,
         byte_length: r.byte_length || null,
         content_base64: r.content_base64 || null,
-        raw_text,
-        parsed_items: parsed?.items || null,
-        parsed_item_count: parsed?.itemCount ?? null,
-        parsed_total: parsed?.total ?? null,
         created_at: now,
       });
     }
@@ -1294,17 +1290,9 @@ async function runBankIdLogin({
   sessionPath = SESSION_PATH,
   onEvent,
 } = {}) {
-  let browser, context, page;
   const log = (m) => onEvent?.("log", { msg: m });
-  const t0 = Date.now();
-  const mark = (label) => {
-    const ms = Date.now() - t0;
-    log?.(`${label} (${ms}ms)`);
-  };
-
   try {
     const storageState = await getStorageStateForUser(userId, sessionPath);
-    // Fast path: HTTP-only BankID flow first
     const httpResult = await tryBankIdHttpFlow({
       userId,
       sessionPath,
@@ -1314,220 +1302,15 @@ async function runBankIdLogin({
     });
     if (httpResult?.ok) {
       onEvent?.("done", { ok: true, result: httpResult.result });
-      return httpResult;
-    }
-    // NEW: log why HTTP flow failed
-    log?.(
-      `HTTP-only BankID flow failed: ${
-        httpResult?.error || "no error message"
-      }`
-    );
-    log?.("HTTP-only BankID flow failed, falling back to full browser...");
-
-    log?.("Obtaining shared Playwright browser/context...");
-    browser = await getSharedBrowser();
-    // Try to reuse a warm context for this user (headless only)
-    context =
-      (await getWarmContext(userId, storageState, headless)) ||
-      (await browser.newContext({
-        viewport: { width: 420, height: 640 },
-        userAgent: UA_CHROME,
-        locale: "sv-SE",
-        storageState: storageState || undefined,
-      }));
-
-    // Speed up: block heavy assets and seed consent to avoid cookie banners
-    await safe(() => context.addCookies([buildConsentCookie()]), "seedConsentCookie");
-    await safe(
-      () =>
-        context.addInitScript(() => {
-          try {
-            localStorage.setItem(
-              "OptanonConsent",
-              "isGpcEnabled=0&datestamp=" +
-                new Date().toISOString() +
-                "&version=6.16.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1,C0004:1"
-            );
-          } catch {}
-          const css = `
-            #onetrust-banner-sdk, .onetrust-pc-dark-filter, [id*="cookie" i], [class*="cookie" i], [class*="consent" i] {
-              visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; display: none !important;
-            }
-          `;
-          const s = document.createElement("style");
-          s.textContent = css;
-          document.documentElement.appendChild(s);
-        }),
-      "seedConsentLS"
-    );
-
-    // Allow all first-party assets (willys.se / axfood.se); block obvious trackers/media elsewhere.
-    await context.route("**/*", async (route) => {
-      const url = route.request().url();
-      const rt = route.request().resourceType();
-      const isFirstParty = /https?:\/\/([^.]+\.)?(willys\.se|axfood\.se)/i.test(
-        url
+    } else {
+      log?.(
+        `HTTP-only BankID flow failed: ${httpResult?.error || 'no error message'}`
       );
-
-      if (isFirstParty) {
-        return route.continue().catch(() => {});
-      }
-
-      // Drop known trackers/analytics CDNs that slow us down.
-      if (/clarity\.ms|sitegainer\.com|hotjar|googletagmanager|google-analytics\.com/i.test(url)) {
-        return route.abort().catch(() => {});
-      }
-
-      // Drop media/large streaming resources.
-      if (rt === "media") {
-        return route.abort().catch(() => {});
-      }
-
-      return route.continue().catch(() => {});
-    });
-
-    page = await context.newPage();
-    attachNetworkTaps(page, (evt, data) => onEvent?.(evt, data));
-
-    await page.goto(LOGIN_URL, { waitUntil: "domcontentloaded", timeout: 15000 });
-    mark("Opened /anvandare/inloggning");
-
-    await closeCookies(page);
-    mark("Cookies: any visible banner has been handled/hidden");
-
-    const switched = await switchToMobiltBankID(page);
-    if (!switched) {
-      onEvent?.("log", {
-        msg: "Did not explicitly find/activate a 'Mobilt BankID' tab; continuing anyway",
-      });
-    } else {
-      mark("Switched to Mobilt BankID (or CTA already visible)");
     }
-
-    const clicked = await clickToShowQR2(page);
-    if (!clicked) {
-      onEvent?.("error", {
-        msg: "Could not find QR/annan enhet or 'Logga in med Mobilt BankID' button",
-      });
-    } else {
-      mark("Clicked login/QR CTA");
-    }
-
-    const hint = await waitForQrHints(page, 15_000);
-    if (hint) {
-      log?.(`QR hint: ${JSON.stringify(hint)}`);
-    } else {
-      // No QR detected yet — dump dialog text for debugging and retry targeted clicks
-      const dlg = page.locator('div[role="dialog"]').first();
-      const snippet = await safe(() => dlg.innerText(), "dumpDialogText");
-      log?.({
-        msg: "No QR detected after clicking CTA; dialog text snippet:",
-        snippet: String(snippet || "").slice(0, 800),
-      });
-
-      await clickAnyText(dlg, [/QR[-\s]*kod/i, /Skanna\s*QR/i, /annan\s*enhet/i]);
-      const hint2 = await waitForQrHints(page, 10_000);
-      if (hint2) {
-        log?.(`QR hint (second try): ${JSON.stringify(hint2)}`);
-      }
-    }
-
-    await safe(
-      () =>
-        page.addStyleTag({
-          content: `
-          button[aria-label="StÃ¤ng"],
-          button[aria-label="Close"],
-          svg[aria-label="StÃ¤ng"],
-          svg[aria-label="Close"] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-          }
-        `,
-        }),
-      "hideCloseButton"
-    );
-
-    const dlg = page.locator('div[role="dialog"]').first();
-    const snapshotTimer = setInterval(async () => {
-      try {
-        if (!(await dlg.isVisible({ timeout: 200 }).catch(() => false))) return;
-        const box = await dlg.boundingBox();
-        if (!box) return;
-        const png = await page.screenshot({
-          type: "png",
-          fullPage: false,
-          clip: {
-            x: Math.max(0, box.x - 2),
-            y: Math.max(0, box.y - 2),
-            width: Math.max(1, box.width + 4),
-            height: Math.max(1, box.height + 4),
-          },
-        });
-        onEvent?.("qr-image", {
-          image: `data:image/png;base64,${png.toString("base64")}`,
-        });
-      } catch {}
-    }, 1500);
-
-    const started = Date.now();
-    let final;
-    const waiter = new Promise((resolve) => {
-      const check = (evt, data) => {
-        if (evt === "done" && data?.ok) {
-          final = { ok: true, result: data.result };
-          resolve();
-        }
-      };
-      attachNetworkTaps(page, check);
-      const i = setInterval(async () => {
-        if (final) {
-          clearInterval(i);
-          return;
-        }
-        if (Date.now() - started > timeoutMs) {
-          final = {
-            ok: false,
-            error: "Timed out waiting for BankID COMPLETE",
-          };
-          resolve();
-        }
-      }, 500);
-    });
-
-    await waiter;
-    clearInterval(snapshotTimer);
-
-    if (final?.ok) {
-      log?.("Login COMPLETE â†’ saving session.");
-      await safe(() => fs.mkdirSync(path.dirname(sessionPath), { recursive: true }), "ensureSessionDir");
-      const stateObj = await safe(() => context.storageState(), "getStateObj");
-      await safe(() => context.storageState({ path: sessionPath }), "saveSessionFile");
-      if (stateObj && userId) {
-        await saveSessionToStore(userId, stateObj);
-      }
-    }
-
-    // Keep warm contexts alive for reuse; close otherwise
-    if (!userId || headless === false) {
-      await safe(() => context?.close(), "closeContext");
-    } else {
-      const entry = warmContexts.get(userId);
-      if (entry) entry.lastUsed = Date.now();
-    }
-    onEvent?.(
-      "done",
-      final?.ok ? { ok: true, result: final.result } : { ok: false }
-    );
-    return final?.ok
-      ? final
-      : { ok: false, error: final?.error || "Unknown error" };
+    return httpResult;
   } catch (err) {
     if (userId) warmContexts.delete(userId);
-    await safe(() => context?.close(), "closeContextOnError");
-    onEvent?.("error", { msg: err?.message || String(err) });
+    onEvent?.('error', { msg: err?.message || String(err) });
     return { ok: false, error: err?.message || String(err) };
   }
 }

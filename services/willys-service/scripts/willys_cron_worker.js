@@ -127,10 +127,6 @@ async function upsertReceiptsDirect(userId, receipts) {
       content_type: r.content_type || null,
       byte_length: r.byte_length || null,
       content_base64: r.content_base64 || null,
-      raw_text,
-      parsed_items: parsed?.items || null,
-      parsed_item_count: parsed?.itemCount ?? null,
-      parsed_total: parsed?.total ?? null,
       created_at: new Date().toISOString(),
     });
 
